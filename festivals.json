@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-03T23:48:06.641Z",
+ "updated": "2026-11-03T23:59:34.607Z",
  "festivals": [
   {
    "id": "g1olp8n",
@@ -42,7 +42,7 @@
      "name": "Earrings",
      "icon": "🦻",
      "price": "15",
-     "cat": "fire",
+     "cat": "life",
      "tier": "kit",
      "note": "Earring"
     },
@@ -50,7 +50,7 @@
      "name": "Necklace ",
      "icon": "🔥",
      "price": "10",
-     "cat": "fire",
+     "cat": "life",
      "tier": "kit",
      "note": "In-Crowd fashion ."
     },
@@ -74,7 +74,7 @@
      "name": "Kevlar Koozie",
      "icon": "🔥",
      "price": "20",
-     "cat": "fire",
+     "cat": "acc",
      "tier": "kit",
      "note": "Burn beers"
     },
@@ -82,7 +82,7 @@
      "name": "Dragon Trails",
      "icon": "🔥",
      "price": "20",
-     "cat": "fire",
+     "cat": "acc",
      "tier": "kit",
      "note": "Dragon staff Speed Trainer and Day Prop adapter"
     },
@@ -98,7 +98,7 @@
      "name": "Waterproof Doubles Covers",
      "icon": "🔥",
      "price": "80",
-     "cat": "fire",
+     "cat": "acc",
      "tier": "kit",
      "note": "Made with raincoat fabric"
     },
@@ -106,7 +106,7 @@
      "name": "HD Key Retractor",
      "icon": "🔥",
      "price": "15",
-     "cat": "fire",
+     "cat": "life",
      "tier": "kit",
      "note": "Keychain"
     },
@@ -114,7 +114,7 @@
      "name": "Staff Covers",
      "icon": "🔥",
      "price": "15",
-     "cat": "fire",
+     "cat": "acc",
      "tier": "kit",
      "note": "Fits most 5- Layer Staves"
     }
