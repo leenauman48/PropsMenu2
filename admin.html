@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.github.com">
+<meta name="robots" content="noindex">
+<title>Enfuego card maker</title>
+<link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="Enfuego"><meta name="theme-color" content="#23282a">
+<style>
+@font-face{font-family:'Caveat';font-weight:700;src:url(caveat-latin-700-normal.woff2) format('woff2')}
+@font-face{font-family:'Patrick Hand';font-weight:400;src:url(patrick-hand-latin-400-normal.woff2) format('woff2')}
+:root{--board:#23282a;--board2:#2c3234;--chalk:#f1efe6;--dim:#a9aca5;--fire:#e8756d;--life:#8fd694;--acc:#6fb3e8;--kit:#f2c46d;--home:#f1efe6;--order:#d3a8f0;--hand:'Caveat','Segoe Print','Bradley Hand',cursive;--body:'Patrick Hand','Comic Sans MS',sans-serif;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--board);color:var(--chalk);font-family:var(--body);font-size:18px}
+body{min-height:100vh;background-image:radial-gradient(rgba(255,255,255,.035) 1px,transparent 1px);background-size:6px 6px}
+header{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 14px;border-bottom:2px dashed #555b5c}
+h1{font-family:var(--hand);font-size:34px;margin:0;font-weight:700;flex:1;min-width:160px}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+button,input,select{font:inherit;color:inherit}
+button{background:none;border:2px solid var(--chalk);border-radius:10px 14px 9px 13px;padding:4px 12px;cursor:pointer}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--kit);outline-offset:2px}
+.on{background:var(--chalk);color:var(--board)}
+main{padding:14px;max-width:1100px;margin:0 auto}
+select,input[type=text],input[type=password]{background:var(--board2);border:2px solid #555b5c;border-radius:8px;padding:5px 9px;max-width:100%}
+.cat-fire{--c:var(--fire)}.cat-life{--c:var(--life)}.cat-acc{--c:var(--acc)}
+.t-kit{--tc:var(--kit)}.t-home{--tc:var(--home)}.t-order{--tc:var(--order)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px;padding-top:16px}
+.card{position:relative;border:3px solid var(--c);border-radius:14px 10px 16px 9px;padding:10px 8px 8px;text-align:center;background:var(--board2);min-height:210px;display:flex;flex-direction:column;align-items:center;gap:2px;transform:rotate(var(--r,0deg))}
+.card::before{content:"";position:absolute;top:-14px;left:50%;width:2px;height:14px;background:var(--dim)}
+.ic{font-size:44px;line-height:1.1}
+.nm{font-family:var(--hand);font-size:29px;font-weight:700;line-height:1;margin-top:2px}
+.pr{font-size:22px;display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:2px 10px;line-height:1.1}
+.pr .tw{font-size:19px;font-weight:700;color:var(--tc)}
+.dots{margin-top:auto;font-size:17px;letter-spacing:2px;min-height:26px;word-break:break-all}
+.tag{font-size:15px;color:var(--dim);margin-top:auto;min-height:26px}
+.ctl{display:flex;gap:12px;align-items:center;margin-top:4px}
+.ctl button{width:36px;height:30px;padding:0;font-size:20px}
+.stamp{position:absolute;inset:auto 6px 46px 6px;font-family:var(--hand);font-size:30px;font-weight:700;color:#e8756d;border:3px solid #e8756d;border-radius:8px;transform:rotate(-9deg);background:rgba(35,40,42,.9);padding:0 4px}
+.sold{opacity:.55}
+.chips{display:flex;gap:8px;flex-wrap:wrap;padding:4px 0}
+.chips button{border-color:var(--c,var(--chalk))}.chips button.on{background:var(--c,var(--chalk));color:var(--board)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border-bottom:1px dashed #4a5051;padding:10px 0;border-left:6px solid var(--c,transparent);padding-left:10px}
+.row .nm2{font-family:var(--hand);font-size:26px;font-weight:700;min-width:130px;flex:1}
+.seg{display:flex}.seg button{border-radius:0;margin-left:-2px;padding:3px 9px;font-size:15px}.seg button:first-child{border-radius:10px 0 0 10px;margin-left:0}.seg button:last-child{border-radius:0 10px 10px 0}
+.seg button.on{background:var(--tc);color:var(--board);border-color:var(--tc)}
+.inc{width:34px;height:34px;padding:0;font-size:20px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.hint{color:var(--dim);font-size:16px;margin:6px 0 12px}
+.lib input.n{width:140px}.lib input.p{width:70px}.lib input.e{width:56px;text-align:center}.lib input.o{flex:1;min-width:130px}
+.empty{padding:30px 0;color:var(--dim);font-size:20px}
+.msg{padding:8px 12px;border:2px dashed var(--kit);border-radius:10px;margin:10px 0}
+.box{border:2px solid #555b5c;border-radius:12px;padding:10px 12px;margin:12px 0}
+.box label{display:block;margin:6px 0 2px;color:var(--dim);font-size:16px}
+.box input{width:100%;max-width:420px}
+@media (prefers-reduced-motion:no-preference){.card{transition:transform .15s}}
+</style>
+</head>
+<body>
+<header><h1>Enfuego card maker</h1><nav id="nav"></nav></header>
+<main id="app"></main>
+<script>
+const KEY='enfuego-menu-v1';
+const TIERS={kit:'Available Today',home:'Ready To Ship',order:'Made To Order'};
+const CATS={fire:'Fire props',life:'Lifestyle',acc:'Accessories'};
+const uid=()=>Math.random().toString(36).slice(2,9);
+const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function seed(){
+  const c=[['Poi head','🔥'],['Chain meteor','☄️'],['Contact staff','🪄'],['Rope dart','🪢'],['Charcoal dart cage','🧺'],['Fire fan','🪭']].map(([name,icon])=>({id:uid(),name,price:'',icon,cat:'fire',note:'Ask about lead time'}));
+  return {cards:c,fests:[{id:uid(),name:'First festival',items:{}}],cur:null,tab:'menu'};
+}
+let S;
+try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
+if(!S||!S.cards)S=seed();
+S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire'});
+S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub});
+S.gh=S.gh||{owner:'leenauman48',repo:'PropsMenu2',branch:'main',token:''};
+if(!S.cur||!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;
+let delArm=false,flt='all',msg='';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const fest=()=>S.fests.find(f=>f.id===S.cur);
+function payload(){return {updated:new Date().toISOString(),festivals:S.fests.filter(f=>f.pub).map(f=>({id:f.id,name:f.name,info:f.info,items:S.cards.filter(c=>f.items[c.id]).map(c=>({name:c.name,icon:c.icon,price:c.price,cat:c.cat,tier:f.items[c.id].tier,note:c.note}))}))}}
+const sig=()=>JSON.stringify(payload().festivals);
+const bsig=()=>JSON.stringify([S.cards,S.fests]);
+let pend=null;
+
+function render(){
+  document.getElementById('nav').innerHTML=[['menu','Menu'],['load','Load'],['cards','Cards'],['pub','Publish'],['backup','Backup'+(S.bk!==bsig()?' •':'')]].map(([k,l])=>`<button data-a="tab" data-v="${k}" class="${S.tab===k?'on':''}">${l}</button>`).join('');
+  document.getElementById('app').innerHTML=S.tab==='menu'?vMenu():S.tab==='load'?vLoad():S.tab==='cards'?vCards():S.tab==='backup'?vBackup():vPub();
+}
+const festPicker=()=>`<select data-a="fest" aria-label="Festival">${S.fests.map(f=>`<option value="${f.id}" ${f.id===S.cur?'selected':''}>${esc(f.name)}</option>`).join('')}</select>`;
+const chips=()=>`<div class="chips"><button data-a="flt" data-v="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-a="flt" data-v="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
+function vMenu(){
+  const f=fest(),ids=S.cards.filter(c=>f.items[c.id]&&(flt==='all'||c.cat===flt));
+  let h=`<div class="bar">${festPicker()}</div>${chips()}`;
+  if(!ids.length)return h+`<div class="empty">Nothing here yet. Open Load and pick your cards.</div>`;
+  return h+'<div class="grid">'+ids.map((c,i)=>{
+    const it=f.items[c.id],t=it.tier,q=it.qty||0,r=((i*37)%5-2)*.5;
+    const low=t==='order'?`<div class="tag">${esc(c.note||'Ask me')}</div>`:`<div class="dots">${q<=0?'':q<=12?'●'.repeat(q):'● × '+q}</div><div class="ctl"><button data-a="dec" data-v="${c.id}" aria-label="Sold one">−</button><span>${q}</span><button data-a="inc" data-v="${c.id}" aria-label="Add one">+</button></div>`;
+    return `<div class="card cat-${c.cat} t-${t} ${t!=='order'&&q<=0?'sold':''}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${low}${t!=='order'&&q<=0?'<div class="stamp">Sold out</div>':''}</div>`;
+  }).join('')+'</div>';
+}
+function vLoad(){
+  const f=fest();
+  let h=`<div class="bar">${festPicker()}<input type="text" id="fname" value="${esc(f.name)}" aria-label="Festival name"><button data-a="dup">Copy as new</button><button data-a="blank">New blank</button><button data-a="del">${delArm?'Tap again to delete':'Delete'}</button></div><div class="bar"><input type="text" id="finfo" style="width:100%;max-width:520px" placeholder="Public note: dates, where to find me" value="${esc(f.info)}" aria-label="Public note"></div><p class="hint">Pick which cards go on this board, where each one is, and how many.</p>`;
+  return h+S.cards.map(c=>{
+    const it=f.items[c.id];
+    let x=`<button data-a="tog" data-v="${c.id}" class="${it?'on':''}">${it?'On board':'Add'}</button>`;
+    if(it)x+=`<div class="seg">${Object.entries(TIERS).map(([k,l])=>`<button data-a="tier" data-v="${c.id}" data-k="${k}" class="t-${k} ${it.tier===k?'on':''}">${l}</button>`).join('')}</div>`+(it.tier!=='order'?`<button class="inc" data-a="dec" data-v="${c.id}">−</button><b>${it.qty||0}</b><button class="inc" data-a="inc" data-v="${c.id}">+</button>`:'');
+    return `<div class="row cat-${c.cat}"><span class="nm2">${esc(c.icon)} ${esc(c.name)}</span>${x}</div>`;
+  }).join('');
+}
+function vCards(){
+  return `<p class="hint">Your full card library. Make a card once, then load it onto any festival.</p>`+S.cards.map(c=>`<div class="row lib cat-${c.cat}"><input class="e" type="text" data-a="edit" data-f="icon" data-v="${c.id}" value="${esc(c.icon)}" aria-label="Icon"><input class="n" type="text" data-a="edit" data-f="name" data-v="${c.id}" value="${esc(c.name)}" aria-label="Name"><input class="p" type="text" inputmode="decimal" placeholder="$" data-a="edit" data-f="price" data-v="${c.id}" value="${esc(c.price)}" aria-label="Price"><select data-a="edit" data-f="cat" data-v="${c.id}" aria-label="Category">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${c.cat===k?'selected':''}>${l}</option>`).join('')}</select><input class="o" type="text" placeholder="Lead-time note" data-a="edit" data-f="note" data-v="${c.id}" value="${esc(c.note)}" aria-label="Lead-time note"><button data-a="rm" data-v="${c.id}" aria-label="Delete card">✕</button></div>`).join('')+`<div class="row"><button data-a="add">+ New card</button></div>`;
+}
+function vPub(){
+  const g=S.gh,dirty=S.sig!==sig();
+  return `<p class="hint">Customers see only the festivals switched to Public here. Everything else stays on this device. Edit offline, then publish once you have signal.</p>
+  ${msg?`<div class="msg">${esc(msg)}</div>`:''}
+  ${S.fests.map(f=>`<div class="row"><span class="nm2">${esc(f.name)}</span><button data-a="pubtog" data-v="${f.id}" class="${f.pub?'on':''}">${f.pub?'Public':'Private'}</button></div>`).join('')}
+  <div class="bar" style="margin-top:14px"><button data-a="publish" class="${dirty?'on':''}">Publish now</button><span class="hint" style="margin:0">${dirty?'Changes not published yet.':'Everything is published.'}${S.pubAt?' Last: '+esc(S.pubAt):''}</span></div>
+  <div class="box"><b>GitHub connection</b><p class="hint">Make a fine-grained token on GitHub limited to this one repository with Contents set to read and write. It stays on this device.</p>
+  <label>Owner</label><input type="text" data-a="gh" data-f="owner" value="${esc(g.owner)}"><label>Repository</label><input type="text" data-a="gh" data-f="repo" value="${esc(g.repo)}"><label>Branch</label><input type="text" data-a="gh" data-f="branch" value="${esc(g.branch)}"><label>Token</label><input type="password" data-a="gh" data-f="token" value="${esc(g.token)}" autocomplete="off">
+  <div class="bar" style="margin-top:10px"><button data-a="forget">Remove token</button></div></div>`;
+}
+function vBackup(){
+  const dirty=S.bk!==bsig();
+  return `<p class="hint">Your cards and festivals live only on this device. A backup is one file you can send to iCloud, Google Drive, Dropbox, email, or a hard drive. It never includes your GitHub token.</p>
+  ${msg?`<div class="msg">${esc(msg)}</div>`:''}
+  <div class="bar"><button data-a="backup" class="${dirty?'on':''}">Back up now</button><span class="hint" style="margin:0">${dirty?'Changes since your last backup.':'Backed up, nothing new.'}${S.bkAt?' Last: '+esc(S.bkAt):''}</span></div>
+  <p class="hint">Tap Back up now, then pick where it goes from the share sheet. Choose Save to Files for iCloud or a plugged-in drive.</p>
+  <div class="box"><b>Restore from a backup</b><p class="hint">This replaces everything on this device with the file’s contents. Your current data is kept as a safety copy first.</p>
+  <input type="file" id="rfile" accept=".json,application/json" data-a="rfile">
+  ${pend?`<div class="msg">Found ${pend.cards.length} cards and ${pend.fests.length} festivals. Replace what’s on this device?</div><div class="bar"><button data-a="rgo" class="on">Replace</button><button data-a="rno">Cancel</button></div>`:''}</div>`;
+}
+async function backup(){
+  const data=JSON.stringify({app:'enfuego-menu',v:1,saved:new Date().toISOString(),cards:S.cards,fests:S.fests,cur:S.cur},null,1);
+  const name='enfuego-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  let done=false;
+  try{
+    const file=new File([data],name,{type:'application/json'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});done=true;}
+  }catch(err){if(err&&err.name==='AbortError')return;}
+  if(!done){
+    const u=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');
+    a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
+  }
+  S.bk=bsig();S.bkAt=new Date().toLocaleString();msg='Backup file created: '+name;save();render();
+}
+function norm(){S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire'});S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub;f.items=f.items||{}});if(!S.fests.length)S.fests.push({id:uid(),name:'New festival',info:'',pub:false,items:{}});if(!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;}
+async function publish(){
+  const g=S.gh;
+  if(!g.token||!g.owner||!g.repo){msg='Add your GitHub details below first.';return render();}
+  if(!navigator.onLine){msg='No signal. Your changes are saved on this device. Publish when you’re back online.';return render();}
+  msg='Publishing…';render();
+  const url=`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/contents/festivals.json`,br=g.branch||'main';
+  const H={Authorization:'Bearer '+g.token,Accept:'application/vnd.github+json'};
+  try{
+    let sha;
+    const r=await fetch(url+'?ref='+encodeURIComponent(br),{headers:H});
+    if(r.ok)sha=(await r.json()).sha;else if(r.status!==404)throw new Error('GitHub said '+r.status+'. Check the token and repository name.');
+    const body={message:'Update festivals',content:btoa(unescape(encodeURIComponent(JSON.stringify(payload(),null,1)))),branch:br};
+    if(sha)body.sha=sha;
+    const w=await fetch(url,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!w.ok)throw new Error('GitHub said '+w.status+'. Check that the token has Contents read and write.');
+    S.sig=sig();S.pubAt=new Date().toLocaleString();msg='Published. It goes live in about a minute.';
+  }catch(err){msg=err.message||'Publish failed.';}
+  save();render();
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-a]');if(!b)return;
+  const a=b.dataset.a,v=b.dataset.v,f=fest();
+  if(a!=='del')delArm=false;
+  if(a==='publish')return publish();
+  if(a==='backup')return backup();
+  if(a==='rno'){pend=null;msg='';return render();}
+  if(a==='rgo'&&pend){try{localStorage.setItem(KEY+'-prev',JSON.stringify({cards:S.cards,fests:S.fests,cur:S.cur}))}catch(x){}S.cards=pend.cards;S.fests=pend.fests;S.cur=pend.cur||'';norm();S.bk=bsig();pend=null;msg='Restored.';save();return render();}
+  if(a==='tab'){S.tab=v;msg='';}
+  else if(a==='flt')flt=v;
+  else if(a==='inc'||a==='dec'){const it=f.items[v];if(it)it.qty=Math.max(0,(it.qty||0)+(a==='inc'?1:-1));}
+  else if(a==='tog'){if(f.items[v])delete f.items[v];else f.items[v]={tier:'kit',qty:1};}
+  else if(a==='tier')f.items[v].tier=b.dataset.k;
+  else if(a==='add')S.cards.push({id:uid(),name:'New card',price:'',icon:'🔥',cat:'fire',note:''});
+  else if(a==='rm'){S.cards=S.cards.filter(c=>c.id!==v);S.fests.forEach(x=>delete x.items[v]);}
+  else if(a==='dup'||a==='blank'){const n={id:uid(),name:a==='dup'?f.name+' copy':'New festival',info:'',pub:false,items:a==='dup'?JSON.parse(JSON.stringify(f.items)):{}};S.fests.push(n);S.cur=n.id;}
+  else if(a==='del'){if(!delArm)delArm=true;else{delArm=false;S.fests=S.fests.filter(x=>x.id!==f.id);if(!S.fests.length)S.fests.push({id:uid(),name:'New festival',info:'',pub:false,items:{}});S.cur=S.fests[0].id;}}
+  else if(a==='pubtog'){const x=S.fests.find(q=>q.id===v);x.pub=!x.pub;}
+  else if(a==='forget'){S.gh.token='';msg='Token removed from this device.';}
+  save();render();
+});
+document.addEventListener('change',e=>{
+  const t=e.target,a=t.dataset.a;
+  if(a==='fest'){S.cur=t.value;delArm=false;save();render();}
+  else if(a==='edit'){const c=S.cards.find(x=>x.id===t.dataset.v);if(c){c[t.dataset.f]=t.value;save();if(t.dataset.f==='cat')render();}}
+  else if(a==='rfile'){const fl=t.files&&t.files[0];if(!fl)return;fl.text().then(x=>{try{const d=JSON.parse(x);if(d.app!=='enfuego-menu'||!Array.isArray(d.cards)||!Array.isArray(d.fests))throw 0;pend=d;msg='';}catch(err){pend=null;msg='That file isn’t an Enfuego backup.';}render();});}
+  else if(a==='gh'){S.gh[t.dataset.f]=t.value.trim();save();}
+  else if(t.id==='fname'){fest().name=t.value||'Untitled';save();render();}
+  else if(t.id==='finfo'){fest().info=t.value;save();}
+});
+render();
+if('serviceWorker' in navigator){addEventListener('load',()=>{try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}})}
+</script>
+</body>
+</html>
