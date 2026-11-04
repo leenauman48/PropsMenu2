@@ -31,6 +31,8 @@ button.on{background:var(--c,var(--chalk));color:var(--board)}
 .pr{font-size:22px;display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:2px 10px;line-height:1.1}
 .pr .tw{font-size:19px;font-weight:700;color:var(--tc)}
 .tag{font-size:16px;color:var(--dim);margin-top:6px}
+.gh{grid-column:1/-1;font-family:var(--hand);font-size:28px;font-weight:700;color:var(--c);margin:8px 0 -6px;border-bottom:2px dashed var(--c);line-height:1.1}
+.ds{font-size:16px;color:var(--dim);line-height:1.2;margin-top:4px}
 .empty{padding:30px 0;color:var(--dim);font-size:20px}
 </style>
 </head>
@@ -42,7 +44,8 @@ try{if((navigator.standalone||matchMedia('(display-mode: standalone)').matches)&
 <main id="app"><div class="empty">Loading the menu…</div></main>
 <script>
 const TIERS={kit:'Available Today',home:'Ready To Ship',order:'Made To Order'};
-const CATS={fire:'Fire props',life:'Lifestyle',acc:'Accessories'};
+const CATS={fire:'Fire props',acc:'Accessories',life:'Lifestyle'};
+const ORD=['fire','acc','life'];
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 let D=null,fid='',flt='all';
 function render(){
@@ -56,11 +59,11 @@ function render(){
   if(fs.length>1)h+=`<div class="chips">${fs.map(x=>`<button data-f="${esc(x.id)}" class="${x.id===f.id?'on':''}">${esc(x.name)}</button>`).join('')}</div>`;
   else h+=`<h2 style="font-family:var(--hand);font-size:30px;margin:0">${esc(f.name)}</h2>`;
   h+=`<div class="chips"><button data-c="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-c="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
-  const items=(f.items||[]).filter(c=>flt==='all'||c.cat===flt);
+  const items=(f.items||[]).map(c=>({...c,cat:CATS[c.cat]?c.cat:'fire'})).filter(c=>flt==='all'||c.cat===flt).sort((x,y)=>ORD.indexOf(x.cat)-ORD.indexOf(y.cat));let last='';
   if(!items.length)h+='<div class="empty">Nothing in this group.</div>';
   else h+='<div class="grid">'+items.map((c,i)=>{
-    const cat=CATS[c.cat]?c.cat:'fire',t=TIERS[c.tier]?c.tier:'order',r=((i*37)%5-2)*.5;
-    return `<div class="card cat-${cat} t-${t}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''&&c.price!=null?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${t==='order'&&c.note?`<div class="tag">${esc(c.note)}</div>`:''}</div>`;
+    const cat=c.cat,gh=(flt==='all'&&cat!==last)?(last=cat,`<h3 class="gh cat-${cat}">${CATS[cat]}</h3>`):'',t=TIERS[c.tier]?c.tier:'order',r=((i*37)%5-2)*.5;
+    return gh+`<div class="card cat-${cat} t-${t}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''&&c.price!=null?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.desc?`<div class="ds">${esc(c.desc)}</div>`:''}${t==='order'&&c.note?`<div class="tag">${esc(c.note)}</div>`:''}</div>`;
   }).join('')+'</div>';
   el.innerHTML=h;
 }
