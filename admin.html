@@ -76,13 +76,13 @@ const sortC=a=>a.slice().sort((x,y)=>ORD.indexOf(x.cat)-ORD.indexOf(y.cat));
 const uid=()=>Math.random().toString(36).slice(2,9);
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 function seed(){
-  const c=[['Poi head','🔥'],['Chain meteor','☄️'],['Contact staff','🪄'],['Rope dart','🪢'],['Charcoal dart cage','🧺'],['Fire fan','🪭']].map(([name,icon])=>({id:uid(),name,price:'',icon,cat:'fire',note:'Ask about lead time',desc:''}));
+  const c=[['Poi head','🔥'],['Chain meteor','☄️'],['Contact staff','🪄'],['Rope dart','🪢'],['Charcoal dart cage','🧺'],['Fire fan','🪭']].map(([name,icon])=>({id:uid(),name,price:'',icon,cat:'fire',note:''}));
   return {cards:c,fests:[{id:uid(),name:'First festival',items:{}}],cur:null,tab:'menu'};
 }
 let S;
 try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
 if(!S||!S.cards)S=seed();
-S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';c.desc=c.desc||''});
+S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';if(c.desc&&!c.note)c.note=c.desc;delete c.desc;if(c.note==='Ask about lead time')c.note='';c.note=c.note||''});
 S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub});
 S.gh=S.gh||{owner:'leenauman48',repo:'PropsMenu2',branch:'main',token:''};
 if(!S.cur||!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;
@@ -90,7 +90,7 @@ S.locked=!!(S.locked&&S.pin);
 let delArm=false,flt='all',msg='';
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const fest=()=>S.fests.find(f=>f.id===S.cur);
-function payload(){return {updated:new Date().toISOString(),festivals:S.fests.filter(f=>f.pub).map(f=>({id:f.id,name:f.name,info:f.info,items:S.cards.filter(c=>f.items[c.id]).map(c=>({name:c.name,icon:c.icon,price:c.price,cat:c.cat,tier:f.items[c.id].tier,note:c.note,desc:c.desc}))}))}}
+function payload(){return {updated:new Date().toISOString(),festivals:S.fests.filter(f=>f.pub).map(f=>({id:f.id,name:f.name,info:f.info,items:S.cards.filter(c=>f.items[c.id]).map(c=>({name:c.name,icon:c.icon,price:c.price,cat:c.cat,tier:f.items[c.id].tier,note:c.note}))}))}}
 const sig=()=>JSON.stringify(payload().festivals);
 const bsig=()=>JSON.stringify([S.cards,S.fests]);
 let pend=null,uk=false,ukMsg='',fails=0,wait=0;
@@ -107,8 +107,8 @@ const festPicker=()=>`<select data-a="fest" aria-label="Festival">${S.fests.map(
 const chips=()=>`<div class="chips"><button data-a="flt" data-v="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-a="flt" data-v="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
 function cardH(c,it,i,ctl){
   const t=it.tier,q=it.qty||0,r=((i*37)%5-2)*.5,out=t!=='order'&&q<=0;
-  const low=t==='order'?`<div class="tag">${esc(c.note||'Ask me')}</div>`:ctl?`<div class="dots">${q<=0?'':q<=12?'●'.repeat(q):'● × '+q}</div><div class="ctl"><button data-a="dec" data-v="${c.id}" aria-label="Sold one">−</button><span>${q}</span><button data-a="inc" data-v="${c.id}" aria-label="Add one">+</button></div>`:'';
-  return `<div class="card cat-${c.cat} t-${t} ${out?'sold':''}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.desc?`<div class="ds">${esc(c.desc)}</div>`:''}${low}${out?'<div class="stamp">Sold out</div>':''}</div>`;
+  const low=t==='order'?'':ctl?`<div class="dots">${q<=0?'':q<=12?'●'.repeat(q):'● × '+q}</div><div class="ctl"><button data-a="dec" data-v="${c.id}" aria-label="Sold one">−</button><span>${q}</span><button data-a="inc" data-v="${c.id}" aria-label="Add one">+</button></div>`:'';
+  return `<div class="card cat-${c.cat} t-${t} ${out?'sold':''}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.note?`<div class="ds">${esc(c.note)}</div>`:''}${low}${out?'<div class="stamp">Sold out</div>':''}</div>`;
 }
 function gridH(list,f,ctl){
   let last='',i=0,h='<div class="grid">';
@@ -157,7 +157,7 @@ function vLoad(){
   }).join('');
 }
 function vCards(){
-  return `<p class="hint">Your full card library. Make a card once, then load it onto any festival.</p>`+S.cards.map(c=>`<div class="row lib cat-${c.cat}"><input class="e" type="text" data-a="edit" data-f="icon" data-v="${c.id}" value="${esc(c.icon)}" aria-label="Icon"><input class="n" type="text" data-a="edit" data-f="name" data-v="${c.id}" value="${esc(c.name)}" aria-label="Name"><input class="p" type="text" inputmode="decimal" placeholder="$" data-a="edit" data-f="price" data-v="${c.id}" value="${esc(c.price)}" aria-label="Price"><select data-a="edit" data-f="cat" data-v="${c.id}" aria-label="Category">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${c.cat===k?'selected':''}>${l}</option>`).join('')}</select><input class="o" type="text" placeholder="Lead-time note" data-a="edit" data-f="note" data-v="${c.id}" value="${esc(c.note)}" aria-label="Lead-time note"><button data-a="rm" data-v="${c.id}" aria-label="Delete card">✕</button><input class="d" type="text" style="flex-basis:100%" placeholder="Description customers will see" data-a="edit" data-f="desc" data-v="${c.id}" value="${esc(c.desc)}" aria-label="Description"></div>`).join('')+`<div class="row"><button data-a="add">+ New card</button></div>`;
+  return `<p class="hint">Your full card library. Make a card once, then load it onto any festival.</p>`+S.cards.map(c=>`<div class="row lib cat-${c.cat}"><input class="e" type="text" data-a="edit" data-f="icon" data-v="${c.id}" value="${esc(c.icon)}" aria-label="Icon"><input class="n" type="text" data-a="edit" data-f="name" data-v="${c.id}" value="${esc(c.name)}" aria-label="Name"><input class="p" type="text" inputmode="decimal" placeholder="$" data-a="edit" data-f="price" data-v="${c.id}" value="${esc(c.price)}" aria-label="Price"><select data-a="edit" data-f="cat" data-v="${c.id}" aria-label="Category">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${c.cat===k?'selected':''}>${l}</option>`).join('')}</select><button data-a="rm" data-v="${c.id}" aria-label="Delete card">✕</button><input class="d" type="text" style="flex-basis:100%" placeholder="Description customers will see" data-a="edit" data-f="note" data-v="${c.id}" value="${esc(c.note)}" aria-label="Description"></div>`).join('')+`<div class="row"><button data-a="add">+ New card</button></div>`;
 }
 function vPub(){
   const g=S.gh,dirty=S.sig!==sig();
@@ -193,7 +193,7 @@ async function backup(){
   }
   S.bk=bsig();S.bkAt=new Date().toLocaleString();msg='Backup file created: '+name;save();render();
 }
-function norm(){S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';c.desc=c.desc||''});S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub;f.items=f.items||{}});if(!S.fests.length)S.fests.push({id:uid(),name:'New festival',info:'',pub:false,items:{}});if(!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;}
+function norm(){S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';if(c.desc&&!c.note)c.note=c.desc;delete c.desc;if(c.note==='Ask about lead time')c.note='';c.note=c.note||''});S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub;f.items=f.items||{}});if(!S.fests.length)S.fests.push({id:uid(),name:'New festival',info:'',pub:false,items:{}});if(!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;}
 async function publish(){
   const g=S.gh;
   if(!g.token||!g.owner||!g.repo){msg='Add your GitHub details below first.';return render();}
@@ -232,7 +232,7 @@ document.addEventListener('click',e=>{
   else if(a==='inc'||a==='dec'){const it=f.items[v];if(it)it.qty=Math.max(0,(it.qty||0)+(a==='inc'?1:-1));}
   else if(a==='tog'){if(f.items[v])delete f.items[v];else f.items[v]={tier:'kit',qty:1};}
   else if(a==='tier')f.items[v].tier=b.dataset.k;
-  else if(a==='add')S.cards.push({id:uid(),name:'New card',price:'',icon:'🔥',cat:'fire',note:'',desc:''});
+  else if(a==='add')S.cards.push({id:uid(),name:'New card',price:'',icon:'🔥',cat:'fire',note:''});
   else if(a==='rm'){S.cards=S.cards.filter(c=>c.id!==v);S.fests.forEach(x=>delete x.items[v]);}
   else if(a==='dup'||a==='blank'){const n={id:uid(),name:a==='dup'?f.name+' copy':'New festival',info:'',pub:false,items:a==='dup'?JSON.parse(JSON.stringify(f.items)):{}};S.fests.push(n);S.cur=n.id;}
   else if(a==='del'){if(!delArm)delArm=true;else{delArm=false;S.fests=S.fests.filter(x=>x.id!==f.id);if(!S.fests.length)S.fests.push({id:uid(),name:'New festival',info:'',pub:false,items:{}});S.cur=S.fests[0].id;}}

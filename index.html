@@ -63,7 +63,7 @@ function render(){
   if(!items.length)h+='<div class="empty">Nothing in this group.</div>';
   else h+='<div class="grid">'+items.map((c,i)=>{
     const cat=c.cat,gh=(flt==='all'&&cat!==last)?(last=cat,`<h3 class="gh cat-${cat}">${CATS[cat]}</h3>`):'',t=TIERS[c.tier]?c.tier:'order',r=((i*37)%5-2)*.5;
-    return gh+`<div class="card cat-${cat} t-${t}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''&&c.price!=null?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.desc?`<div class="ds">${esc(c.desc)}</div>`:''}${t==='order'&&c.note?`<div class="tag">${esc(c.note)}</div>`:''}</div>`;
+    return gh+`<div class="card cat-${cat} t-${t}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''&&c.price!=null?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.note?`<div class="ds">${esc(c.note)}</div>`:''}</div>`;
   }).join('')+'</div>';
   el.innerHTML=h;
 }
