@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-03T23:59:34.607Z",
+ "updated": "2026-11-04T00:05:02.055Z",
  "festivals": [
   {
    "id": "g1olp8n",
@@ -117,6 +117,29 @@
      "cat": "acc",
      "tier": "kit",
      "note": "Fits most 5- Layer Staves"
+    }
+   ]
+  },
+  {
+   "id": "t6wchf7",
+   "name": "Made to order",
+   "info": "",
+   "items": [
+    {
+     "name": "Chain Meteor Head",
+     "icon": "☄️",
+     "price": "140",
+     "cat": "fire",
+     "tier": "kit",
+     "note": ""
+    },
+    {
+     "name": "Contact staff",
+     "icon": "🪄",
+     "price": "250",
+     "cat": "fire",
+     "tier": "order",
+     "note": "63\" & 70\" , can cut to size"
     }
    ]
   }
