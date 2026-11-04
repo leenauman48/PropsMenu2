@@ -44,6 +44,12 @@ button.on{background:var(--c,var(--chalk));color:var(--board)}
 .gcap{max-width:520px;text-align:center;padding:0 16px;font-size:20px}.gcap b{font-family:var(--hand);font-size:30px}.gcap p{color:var(--dim);margin:4px 0 0;font-size:17px}
 .bc{border:3px dashed var(--chalk);border-radius:16px 12px 18px 11px;background:var(--board2);padding:22px 26px;width:min(86vw,420px);display:flex;flex-direction:column;gap:6px;font-size:22px}
 .bc .bn{font-family:var(--hand);font-size:44px;font-weight:700;line-height:1}.bc .bb{font-family:var(--hand);font-size:30px;font-weight:700;color:var(--kit);margin-bottom:6px}.bc a{color:var(--chalk);text-decoration:none}
+.sec{display:flex;gap:6px;align-items:flex-end}
+.sec button{flex:1;border-radius:16px 16px 0 0;border-bottom:0;padding:8px 6px 6px;font-family:var(--hand);font-size:26px;font-weight:700;line-height:1.1}
+.sec button.big{flex:2;font-size:40px}
+.np{font-size:16px;color:var(--dim);font-weight:400}
+.rpb{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:2px}
+.rr{font-family:var(--hand);font-size:36px;font-weight:700;color:var(--kit);line-height:1;transform:rotate(-2deg);display:inline-block}
 .empty{padding:30px 0;color:var(--dim);font-size:20px}
 </style>
 </head>
@@ -51,7 +57,7 @@ button.on{background:var(--c,var(--chalk));color:var(--board)}
 <script>
 try{if((navigator.standalone||matchMedia('(display-mode: standalone)').matches)&&localStorage.getItem('enfuego-menu-v1'))location.replace('admin.html')}catch(e){}
 </script>
-<header style="display:flex;gap:10px;justify-content:space-between;align-items:flex-start"><div><h1>Enfuego Ball Co</h1><p class="info" id="info"></p></div><button id="ccb" class="on" style="--c:var(--chalk)">Order / Contact</button></header>
+<header id="tabs" style="padding:12px 14px 0"></header>
 <main id="app"><div class="empty">Loading the menu…</div></main>
 <script>
 const TIERS={kit:'Available Today',home:'Ready To Ship',order:'Made To Order'};
@@ -95,32 +101,38 @@ async function ccSend(file){
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:file.name});return;}}catch(e){if(e&&e.name==='AbortError')return;}
   const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
 }
-function openCC(){
-  closeGal();const c=getContact(),d=document.createElement('div');d.id='gv';d.className='gv';
-  d.innerHTML=`<button class="gx" aria-label="Close">✕</button><div class="bc"><div class="bn">${esc(c.name)}</div><div class="bb">Enfuego Ball Co</div><a href="tel:${esc(ccTel(c.phone))}">${esc(ccPhone(c.phone))}</a><a href="mailto:${esc(c.email)}">${esc(c.email)}</a><span>${esc(c.handle)}</span></div><div class="bar" style="justify-content:center"><button data-cc="jpg" class="on">Save as JPEG</button><button data-cc="vcf">Add to Contacts</button></div>`;
-  document.body.appendChild(d);
-  const jp=ccJpg(c);jp.catch(()=>{});
-  d.addEventListener('click',async e=>{
-    const k=e.target.closest('[data-cc]');
-    if(k){try{if(k.dataset.cc==='jpg')ccSend(new File([await jp],'enfuego-contact.jpg',{type:'image/jpeg'}));else ccSend(new File([ccVcf(c)],'Enfuego-Contact.vcf',{type:'text/vcard'}));}catch(x){}return;}
-    if(e.target===d||e.target.closest('.gx'))closeGal();
-  });
-}
-
+function ccBody(c){return `<div class="bc"><div class="bn">${esc(c.name)}</div><div class="bb">Enfuego Ball Co</div><a href="tel:${esc(ccTel(c.phone))}">${esc(ccPhone(c.phone))}</a><a href="mailto:${esc(c.email)}">${esc(c.email)}</a><span>${esc(c.handle)}</span></div><div class="bar" style="justify-content:center"><button data-cc="jpg" class="on">Save as JPEG</button><button data-cc="vcf">Add to Contacts</button></div>`}
+let ccK='',ccP=null;
+function ccJ(c){const k=JSON.stringify(c);if(k!==ccK){ccK=k;ccP=ccJpg(c);ccP.catch(()=>{});}return ccP}
+async function ccAct(kind){const c=getContact();try{if(kind==='jpg')ccSend(new File([await ccJ(c)],'enfuego-contact.jpg',{type:'image/jpeg'}));else ccSend(new File([ccVcf(c)],'Enfuego-Contact.vcf',{type:'text/vcard'}));}catch(x){}}
+function openCC(){closeGal();const c=getContact(),d=document.createElement('div');d.id='gv';d.className='gv';d.innerHTML=`<button class="gx" aria-label="Close">✕</button>${ccBody(c)}`;document.body.appendChild(d);ccJ(c);d.addEventListener('click',e=>{const k=e.target.closest('[data-cc]');if(k){ccAct(k.dataset.cc);return;}if(e.target===d||e.target.closest('.gx'))closeGal();});}
 const DEFC={name:'Lee Enfuego',phone:'7609759719',email:'Enfuego'+'ball@gmail.com',handle:'@enfuegoballco'};
 function getContact(){const c=(D&&D.contact)||{};return {name:c.name||DEFC.name,phone:c.phone||DEFC.phone,email:c.email||DEFC.email,handle:c.handle||DEFC.handle}}
 const pids=c=>(c.imgs||[]).filter(x=>/^[a-z0-9]+$/.test(x));
+const num=p=>parseFloat(String(p==null?'':p).replace(/[^0-9.]/g,''))||0;
+const m$=n=>'$'+(Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2});
+let sec='menu';
+function rH(x,i){const ids=pids(x),rot=((i*37)%5-2)*.5,pic=ids.length?`<img class="ph" loading="lazy" src="img/${ids[0]}-t.jpg" alt="">${ids.length>1?`<div class="gd">${ids.map(()=>'<i></i>').join('')}</div>`:''}`:`<div class="ic">${esc(x.icon)}</div>`;
+  return `<div class="card cat-${x.cat}" ${ids.length?`data-g="${i}"`:''} style="--r:${rot}deg">${pic}<div class="nm">${esc(x.name)}</div><div class="rpb">${num(x.np)?`<span class="np">New ${m$(num(x.np))}</span>`:''}<span class="rr">${String(x.rp==null?'':x.rp).trim()!==''?'Repair '+m$(num(x.rp)):'Ask for a quote'}</span></div>${x.note?`<div class="ds">${esc(x.note)}</div>`:''}</div>`}
 function render(){
-  const el=document.getElementById('app'),inf=document.getElementById('info');
+  const el=document.getElementById('app');
+  document.getElementById('tabs').innerHTML=`<div class="sec"><button data-s="menu" class="big ${sec==='menu'?'on':''}">Enfuego Ball</button><button data-s="rep" class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button data-s="ct" class="${sec==='ct'?'on':''}">Contact</button></div>`;
   if(D===null){el.innerHTML='<div class="empty">Can’t load the menu right now. Check your connection and try again.</div>';return;}
+  const chips=`<div class="chips"><button data-c="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-c="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
+  if(sec==='ct'){el.innerHTML=ccBody(getContact());ccJ(getContact());return;}
+  if(sec==='rep'){
+    const items=(D.repairs||[]).map(c=>({...c,cat:CATS[c.cat]?c.cat:'fire'})).filter(c=>flt==='all'||c.cat===flt).sort((x,y)=>ORD.indexOf(x.cat)-ORD.indexOf(y.cat));LIST=items;let last='',i=0,g='';
+    for(const c of items){if(flt==='all'&&c.cat!==last){g+=`<h3 class="gh cat-${c.cat}">${CATS[c.cat]}</h3>`;last=c.cat;}g+=rH(c,i++);}
+    el.innerHTML=(D.repNote?`<p class="info">${esc(D.repNote)}</p>`:'')+chips+(items.length?`<div class="grid">${g}</div>`:'<div class="empty">No repair estimates posted yet.</div>');return;
+  }
   const fs=D.festivals||[];
-  if(!fs.length){el.innerHTML='<div class="empty">No menus are posted right now. Check back soon.</div>';inf.textContent='';return;}
+  if(!fs.length){el.innerHTML='<div class="empty">No menus are posted right now. Check back soon.</div>';return;}
   const f=fs.find(x=>x.id===fid)||fs[0];
-  inf.textContent=f.info||'';
   let h='';
   if(fs.length>1)h+=`<div class="chips">${fs.map(x=>`<button data-f="${esc(x.id)}" class="${x.id===f.id?'on':''}">${esc(x.name)}</button>`).join('')}</div>`;
   else h+=`<h2 style="font-family:var(--hand);font-size:30px;margin:0">${esc(f.name)}</h2>`;
-  h+=`<div class="chips"><button data-c="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-c="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
+  if(f.info)h+=`<p class="info">${esc(f.info)}</p>`;
+  h+=chips;
   const items=(f.items||[]).map(c=>({...c,cat:CATS[c.cat]?c.cat:'fire'})).filter(c=>flt==='all'||c.cat===flt).sort((x,y)=>ORD.indexOf(x.cat)-ORD.indexOf(y.cat));let last='';LIST=items;
   if(!items.length)h+='<div class="empty">Nothing in this group.</div>';
   else h+='<div class="grid">'+items.map((c,i)=>{
@@ -131,14 +143,15 @@ function render(){
   el.innerHTML=h;
 }
 document.addEventListener('click',e=>{
+  const cck=e.target.closest('[data-cc]');if(cck&&!cck.closest('#gv')){ccAct(cck.dataset.cc);return;}
   const b=e.target.closest('button');
   if(!b){const g=e.target.closest('.card[data-g]');if(g){const c=LIST[+g.dataset.g];if(c)gal(c.name,c.price,c.note,pids(c).map(id=>'img/'+id+'.jpg'));}return;}
-  if(b.closest('#gv')||b.id==='ccb')return;
+  if(b.closest('#gv'))return;
+  if(b.dataset.s){sec=b.dataset.s;flt='all';render();return;}
   if(b.dataset.f){fid=b.dataset.f;try{history.replaceState(null,'','#'+fid)}catch(x){}}
   if(b.dataset.c)flt=b.dataset.c;
   render();
 });
-document.getElementById('ccb').addEventListener('click',openCC);
 fid=decodeURIComponent(location.hash.slice(1));
 fetch('festivals.json?'+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():{festivals:[]}).then(j=>{D=j;render()}).catch(()=>{D=null;render()});
 </script>
