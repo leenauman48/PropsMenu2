@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.github.com">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https://api.github.com">
 <meta name="robots" content="noindex">
 <title>Enfuego card maker</title>
 <link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-180.png">
@@ -56,6 +56,18 @@ select,input[type=text],input[type=password]{background:var(--board2);border:2px
 .box label{display:block;margin:6px 0 2px;color:var(--dim);font-size:16px}
 .box input{width:100%;max-width:420px}
 h1{font-size:34px}
+.ph{width:92px;height:92px;object-fit:cover;border-radius:10px;border:2px solid var(--dim);background:var(--board)}
+.gd{display:flex;gap:4px;justify-content:center;margin:3px 0 0}.gd i{width:5px;height:5px;border-radius:50%;background:var(--chalk);opacity:.35}.gd i:first-child{opacity:.85}
+.card[data-g]{cursor:pointer}
+.gv{position:fixed;inset:0;z-index:50;background:rgba(14,17,18,.94);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.gx{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;width:44px;height:44px;border-radius:50%;padding:0;font-size:20px;background:var(--board)}
+.gs{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;width:100%;padding:0 7%;scroll-padding:0 7%;scrollbar-width:none}.gs::-webkit-scrollbar{display:none}
+.gp{flex:0 0 86%;scroll-snap-align:center}.gp img{width:100%;max-height:64vh;object-fit:contain;border-radius:12px;display:block}
+.gdots{display:flex;gap:8px}.gdots i{width:8px;height:8px;border-radius:50%;background:var(--chalk);opacity:.3}.gdots i.on{opacity:.9}
+.gcap{max-width:520px;text-align:center;padding:0 16px;font-size:20px}.gcap b{font-family:var(--hand);font-size:30px}.gcap p{color:var(--dim);margin:4px 0 0;font-size:17px}
+.pics{flex-basis:100%;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.th{position:relative}.th img{width:56px;height:56px;object-fit:cover;border-radius:8px;border:2px solid var(--dim);display:block}.th.cv img{border-color:var(--chalk)}.th .tb{border:0;padding:0;background:none}.th button:not(.tb){position:absolute;top:-8px;right:-8px;width:22px;height:22px;padding:0;font-size:12px;border-radius:50%;background:var(--board)}
+.addp{border:2px dashed var(--chalk);border-radius:10px;padding:6px 12px;cursor:pointer}.addp input{display:none}
+.lib input.e:disabled{opacity:.3}
 .ds{font-size:16px;color:var(--dim);line-height:1.2;margin-top:4px}
 .gh{grid-column:1/-1;font-family:var(--hand);font-size:28px;font-weight:700;color:var(--c);margin:8px 0 -6px;border-bottom:2px dashed var(--c);line-height:1.1}
 .pres .fh{font-family:var(--hand);font-size:30px;margin:0}.pres h1{margin:0 0 4px}.pres .card{min-height:170px}
@@ -82,17 +94,43 @@ function seed(){
 let S;
 try{S=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){S=null}
 if(!S||!S.cards)S=seed();
-S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';if(c.desc&&!c.note)c.note=c.desc;delete c.desc;if(c.note==='Ask about lead time')c.note='';c.note=c.note||''});
+S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';if(c.desc&&!c.note)c.note=c.desc;delete c.desc;if(c.note==='Ask about lead time')c.note='';c.note=c.note||'';c.imgs=Array.isArray(c.imgs)?c.imgs:[]});
 S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub});
+S.up=S.up||{};
 S.gh=S.gh||{owner:'leenauman48',repo:'PropsMenu2',branch:'main',token:''};
 if(!S.cur||!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;
 S.locked=!!(S.locked&&S.pin);
 let delArm=false,flt='all',msg='';
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const fest=()=>S.fests.find(f=>f.id===S.cur);
-function payload(){return {updated:new Date().toISOString(),festivals:S.fests.filter(f=>f.pub).map(f=>({id:f.id,name:f.name,info:f.info,items:S.cards.filter(c=>f.items[c.id]).map(c=>({name:c.name,icon:c.icon,price:c.price,cat:c.cat,tier:f.items[c.id].tier,note:c.note}))}))}}
+function payload(){return {updated:new Date().toISOString(),festivals:S.fests.filter(f=>f.pub).map(f=>({id:f.id,name:f.name,info:f.info,items:S.cards.filter(c=>f.items[c.id]).map(c=>({name:c.name,icon:c.icon,price:c.price,cat:c.cat,tier:f.items[c.id].tier,note:c.note,imgs:c.imgs}))}))}}
 const sig=()=>JSON.stringify(payload().festivals);
 const bsig=()=>JSON.stringify([S.cards,S.fests]);
+const IMG={};
+const idb=new Promise((ok,no)=>{try{const q=indexedDB.open('enfuego-img',1);q.onupgradeneeded=()=>q.result.createObjectStore('i',{keyPath:'id'});q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)}catch(e){no(e)}});idb.catch(()=>{});
+const tx=async(m,fn)=>{const d=await idb;return new Promise((ok,no)=>{const t=d.transaction('i',m),r=fn(t.objectStore('i'));t.oncomplete=()=>ok(r&&r.result);t.onerror=()=>no(t.error)})};
+const idbPut=o=>tx('readwrite',s=>s.put(o)),idbGet=id=>tx('readonly',s=>s.get(id)),idbDel=id=>tx('readwrite',s=>s.delete(id));
+const b2d=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
+const d2b=d=>{const [h,x]=d.split(','),m=/data:(.*?);/.exec(h)[1],bin=atob(x),a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:m})};
+function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*k),h=Math.round(im.naturalHeight*k),cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);cv.toBlob(b=>{URL.revokeObjectURL(u);b?res(b):rej()},'image/jpeg',q)};im.onerror=()=>{URL.revokeObjectURL(u);rej()};im.src=u})}
+async function addImgs(cid,files){
+  const c=S.cards.find(x=>x.id===cid);if(!c)return;
+  for(const f of files){try{const id=uid(),t=await shrink(f,420,.78),full=await shrink(f,1100,.8);await idbPut({id,t,f:full});IMG[id]={t:URL.createObjectURL(t),f:URL.createObjectURL(full)};c.imgs.push(id);save();render();}catch(e){}}
+}
+function delImg(id){const m=IMG[id];if(m){URL.revokeObjectURL(m.t);URL.revokeObjectURL(m.f);delete IMG[id];}idbDel(id).catch(()=>{});}
+async function loadImgs(){for(const c of S.cards)for(const id of c.imgs){if(IMG[id])continue;try{const r=await idbGet(id);if(r)IMG[id]={t:URL.createObjectURL(r.t),f:URL.createObjectURL(r.f)};}catch(e){}}render();}
+function gal(name,price,desc,urls){
+  closeGal();const d=document.createElement('div');d.id='gv';d.className='gv';
+  d.innerHTML=`<button class="gx" aria-label="Close">✕</button><div class="gs">${urls.map(u=>`<div class="gp"><img src="${esc(u)}" alt=""></div>`).join('')}</div>${urls.length>1?`<div class="gdots">${urls.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}<div class="gcap"><b>${esc(name)}</b>${price!==''&&price!=null?' <span>$'+esc(price)+'</span>':''}${desc?`<p>${esc(desc)}</p>`:''}</div>`;
+  document.body.appendChild(d);
+  const sc=d.querySelector('.gs'),dots=d.querySelectorAll('.gdots i');
+  sc.addEventListener('scroll',()=>{const w=sc.children[0].offsetWidth+12,i=Math.min(urls.length-1,Math.round(sc.scrollLeft/w));dots.forEach((x,k)=>x.classList.toggle('on',k===i))});
+  d.addEventListener('click',e=>{if(e.target===d||e.target===sc||e.target.closest('.gx'))closeGal()});
+}
+function closeGal(){const g=document.getElementById('gv');if(g)g.remove()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGal()});
+function openG(id){const c=S.cards.find(x=>x.id===id);if(!c)return;const u=c.imgs.map(i=>IMG[i]&&IMG[i].f).filter(Boolean);if(u.length)gal(c.name,c.price,c.note,u);}
+let bkFile=null;
 let pend=null,uk=false,ukMsg='',fails=0,wait=0;
 const hp=async(pin,salt)=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+pin)))].map(x=>x.toString(16).padStart(2,'0')).join('');
 
@@ -108,7 +146,8 @@ const chips=()=>`<div class="chips"><button data-a="flt" data-v="all" class="${f
 function cardH(c,it,i,ctl){
   const t=it.tier,q=it.qty||0,r=((i*37)%5-2)*.5,out=t!=='order'&&q<=0;
   const low=t==='order'?'':ctl?`<div class="dots">${q<=0?'':q<=12?'●'.repeat(q):'● × '+q}</div><div class="ctl"><button data-a="dec" data-v="${c.id}" aria-label="Sold one">−</button><span>${q}</span><button data-a="inc" data-v="${c.id}" aria-label="Add one">+</button></div>`:'';
-  return `<div class="card cat-${c.cat} t-${t} ${out?'sold':''}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.note?`<div class="ds">${esc(c.note)}</div>`:''}${low}${out?'<div class="stamp">Sold out</div>':''}</div>`;
+  const cov=c.imgs[0],pic=cov?`<img class="ph" ${IMG[cov]?`src="${IMG[cov].t}"`:''} alt="">${c.imgs.length>1?`<div class="gd">${c.imgs.map(()=>'<i></i>').join('')}</div>`:''}`:`<div class="ic">${esc(c.icon)}</div>`;
+  return `<div class="card cat-${c.cat} t-${t} ${out?'sold':''}" ${cov?`data-g="${c.id}"`:''} style="--r:${r}deg">${pic}<div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.note?`<div class="ds">${esc(c.note)}</div>`:''}${low}${out?'<div class="stamp">Sold out</div>':''}</div>`;
 }
 function gridH(list,f,ctl){
   let last='',i=0,h='<div class="grid">';
@@ -157,7 +196,7 @@ function vLoad(){
   }).join('');
 }
 function vCards(){
-  return `<p class="hint">Your full card library. Make a card once, then load it onto any festival.</p>`+S.cards.map(c=>`<div class="row lib cat-${c.cat}"><input class="e" type="text" data-a="edit" data-f="icon" data-v="${c.id}" value="${esc(c.icon)}" aria-label="Icon"><input class="n" type="text" data-a="edit" data-f="name" data-v="${c.id}" value="${esc(c.name)}" aria-label="Name"><input class="p" type="text" inputmode="decimal" placeholder="$" data-a="edit" data-f="price" data-v="${c.id}" value="${esc(c.price)}" aria-label="Price"><select data-a="edit" data-f="cat" data-v="${c.id}" aria-label="Category">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${c.cat===k?'selected':''}>${l}</option>`).join('')}</select><button data-a="rm" data-v="${c.id}" aria-label="Delete card">✕</button><input class="d" type="text" style="flex-basis:100%" placeholder="Description customers will see" data-a="edit" data-f="note" data-v="${c.id}" value="${esc(c.note)}" aria-label="Description"></div>`).join('')+`<div class="row"><button data-a="add">+ New card</button></div>`;
+  return `<p class="hint">Your full card library. Make a card once, then load it onto any festival. Photos replace the emoji, and tapping a photo makes it the cover.</p>`+S.cards.map(c=>`<div class="row lib cat-${c.cat}"><input class="e" type="text" data-a="edit" data-f="icon" data-v="${c.id}" value="${esc(c.icon)}" aria-label="Icon" ${c.imgs.length?'disabled':''}><input class="n" type="text" data-a="edit" data-f="name" data-v="${c.id}" value="${esc(c.name)}" aria-label="Name"><input class="p" type="text" inputmode="decimal" placeholder="$" data-a="edit" data-f="price" data-v="${c.id}" value="${esc(c.price)}" aria-label="Price"><select data-a="edit" data-f="cat" data-v="${c.id}" aria-label="Category">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${c.cat===k?'selected':''}>${l}</option>`).join('')}</select><button data-a="rm" data-v="${c.id}" aria-label="Delete card">✕</button><input class="d" type="text" style="flex-basis:100%" placeholder="Description customers will see" data-a="edit" data-f="note" data-v="${c.id}" value="${esc(c.note)}" aria-label="Description"><div class="pics">${c.imgs.map((id,i)=>`<span class="th ${i?'':'cv'}"><button class="tb" data-a="imgcover" data-v="${c.id}" data-k="${id}" aria-label="Make cover"><img ${IMG[id]?`src="${IMG[id].t}"`:''} alt=""></button><button data-a="imgrm" data-v="${c.id}" data-k="${id}" aria-label="Remove photo">✕</button></span>`).join('')}<label class="addp">+ Photos<input type="file" accept="image/*" multiple data-a="imgadd" data-v="${c.id}"></label></div></div>`).join('')+`<div class="row"><button data-a="add">+ New card</button></div>`;
 }
 function vPub(){
   const g=S.gh,dirty=S.sig!==sig();
@@ -173,27 +212,33 @@ function vBackup(){
   const dirty=S.bk!==bsig();
   return `<p class="hint">Your cards and festivals live only on this device. A backup is one file you can send to iCloud, Google Drive, Dropbox, email, or a hard drive. It never includes your GitHub token.</p>
   ${msg?`<div class="msg">${esc(msg)}</div>`:''}
-  <div class="bar"><button data-a="backup" class="${dirty?'on':''}">Back up now</button><span class="hint" style="margin:0">${dirty?'Changes since your last backup.':'Backed up, nothing new.'}${S.bkAt?' Last: '+esc(S.bkAt):''}</span></div>
+  ${bkFile?`<div class="bar"><button data-a="bkshare" class="on">Send backup</button><button data-a="bkdl">Save to Downloads</button></div>`:''}<div class="bar"><button data-a="backup" class="${dirty?'on':''}">Back up now</button><span class="hint" style="margin:0">${dirty?'Changes since your last backup.':'Backed up, nothing new.'}${S.bkAt?' Last: '+esc(S.bkAt):''}</span></div>
   <p class="hint">Tap Back up now, then pick where it goes from the share sheet. Choose Save to Files for iCloud or a plugged-in drive.</p>
   <div class="box"><b>Restore from a backup</b><p class="hint">This replaces everything on this device with the file’s contents. Your current data is kept as a safety copy first.</p>
   <input type="file" id="rfile" accept=".json,application/json" data-a="rfile">
   ${pend?`<div class="msg">Found ${pend.cards.length} cards and ${pend.fests.length} festivals. Replace what’s on this device?</div><div class="bar"><button data-a="rgo" class="on">Replace</button><button data-a="rno">Cancel</button></div>`:''}</div>`;
 }
+function dl(file){const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function bkDone(){S.bk=bsig();S.bkAt=new Date().toLocaleString();msg='Backup saved.';bkFile=null;save();render();}
 async function backup(){
-  const data=JSON.stringify({app:'enfuego-menu',v:1,saved:new Date().toISOString(),cards:S.cards,fests:S.fests,cur:S.cur},null,1);
+  msg='Preparing backup…';render();
+  const imgs=[];for(const id of new Set(S.cards.flatMap(c=>c.imgs))){try{const r=await idbGet(id);if(r)imgs.push({id,t:await b2d(r.t),f:await b2d(r.f)});}catch(x){}}
   const name='enfuego-backup-'+new Date().toISOString().slice(0,10)+'.json';
-  let done=false;
+  const file=new File([JSON.stringify({app:'enfuego-menu',v:2,saved:new Date().toISOString(),cards:S.cards,fests:S.fests,cur:S.cur,imgs},null,1)],name,{type:'application/json'});
   try{
-    const file=new File([data],name,{type:'application/json'});
-    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});done=true;}
-  }catch(err){if(err&&err.name==='AbortError')return;}
-  if(!done){
-    const u=URL.createObjectURL(new Blob([data],{type:'application/json'})),a=document.createElement('a');
-    a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
+    if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:name});return bkDone();}
+    dl(file);return bkDone();
+  }catch(err){
+    if(err&&err.name==='AbortError'){msg='';return render();}
+    bkFile=file;msg='Backup is ready. Tap Send backup to choose where it goes.';render();
   }
-  S.bk=bsig();S.bkAt=new Date().toLocaleString();msg='Backup file created: '+name;save();render();
 }
-function norm(){S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';if(c.desc&&!c.note)c.note=c.desc;delete c.desc;if(c.note==='Ask about lead time')c.note='';c.note=c.note||''});S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub;f.items=f.items||{}});if(!S.fests.length)S.fests.push({id:uid(),name:'New festival',info:'',pub:false,items:{}});if(!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;}
+async function doRestore(){
+  try{localStorage.setItem(KEY+'-prev',JSON.stringify({cards:S.cards,fests:S.fests,cur:S.cur}))}catch(x){}
+  for(const m of pend.imgs||[]){try{const o={id:m.id,t:d2b(m.t),f:d2b(m.f)};await idbPut(o);if(!IMG[m.id])IMG[m.id]={t:URL.createObjectURL(o.t),f:URL.createObjectURL(o.f)};}catch(x){}}
+  S.cards=pend.cards;S.fests=pend.fests;S.cur=pend.cur||'';norm();S.bk=bsig();pend=null;msg='Restored.';save();render();
+}
+function norm(){S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';if(c.desc&&!c.note)c.note=c.desc;delete c.desc;if(c.note==='Ask about lead time')c.note='';c.note=c.note||'';c.imgs=Array.isArray(c.imgs)?c.imgs:[]});S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub;f.items=f.items||{}});if(!S.fests.length)S.fests.push({id:uid(),name:'New festival',info:'',pub:false,items:{}});if(!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;}
 async function publish(){
   const g=S.gh;
   if(!g.token||!g.owner||!g.repo){msg='Add your GitHub details below first.';return render();}
@@ -205,6 +250,18 @@ async function publish(){
     let sha;
     const r=await fetch(url+'?ref='+encodeURIComponent(br),{headers:H});
     if(r.ok)sha=(await r.json()).sha;else if(r.status!==404)throw new Error('GitHub said '+r.status+'. Check the token and repository name.');
+    const need=[...new Set(payload().festivals.flatMap(f=>f.items.flatMap(i=>i.imgs)))].filter(id=>!S.up[id]);
+    const base=`https://api.github.com/repos/${encodeURIComponent(g.owner)}/${encodeURIComponent(g.repo)}/contents/`;
+    let n=0;
+    for(const id of need){
+      msg=`Uploading photos ${++n} of ${need.length}…`;render();
+      const rec=await idbGet(id);if(!rec)continue;
+      for(const [path,blob] of [['img/'+id+'-t.jpg',rec.t],['img/'+id+'.jpg',rec.f]]){
+        const pr=await fetch(base+path,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify({message:'Add photo',content:(await b2d(blob)).split(',')[1],branch:br})});
+        if(!pr.ok&&pr.status!==422)throw new Error('Photo upload failed ('+pr.status+').');
+      }
+      S.up[id]=1;save();
+    }
     const body={message:'Update festivals',content:btoa(unescape(encodeURIComponent(JSON.stringify(payload(),null,1)))),branch:br};
     if(sha)body.sha=sha;
     const w=await fetch(url,{method:'PUT',headers:{...H,'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -214,7 +271,8 @@ async function publish(){
   save();render();
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest('button[data-a]');if(!b)return;
+  const b=e.target.closest('button[data-a]');
+  if(!b){const g=e.target.closest('.card[data-g]');if(g)openG(g.dataset.g);return;}
   const a=b.dataset.a,v=b.dataset.v,f=fest();
   if(S.locked&&!['flt','ukshow','ukgo','ukno'].includes(a))return;
   if(a==='ukshow'){uk=true;ukMsg='';return render();}
@@ -226,14 +284,18 @@ document.addEventListener('click',e=>{
   if(a==='publish')return publish();
   if(a==='backup')return backup();
   if(a==='rno'){pend=null;msg='';return render();}
-  if(a==='rgo'&&pend){try{localStorage.setItem(KEY+'-prev',JSON.stringify({cards:S.cards,fests:S.fests,cur:S.cur}))}catch(x){}S.cards=pend.cards;S.fests=pend.fests;S.cur=pend.cur||'';norm();S.bk=bsig();pend=null;msg='Restored.';save();return render();}
+  if(a==='rgo'&&pend)return doRestore();
+  if(a==='bkshare'&&bkFile){navigator.share({files:[bkFile],title:bkFile.name}).then(bkDone).catch(()=>{});return;}
+  if(a==='bkdl'&&bkFile){dl(bkFile);bkDone();return;}
   if(a==='tab'){S.tab=v;msg='';}
   else if(a==='flt')flt=v;
   else if(a==='inc'||a==='dec'){const it=f.items[v];if(it)it.qty=Math.max(0,(it.qty||0)+(a==='inc'?1:-1));}
   else if(a==='tog'){if(f.items[v])delete f.items[v];else f.items[v]={tier:'kit',qty:1};}
   else if(a==='tier')f.items[v].tier=b.dataset.k;
-  else if(a==='add')S.cards.push({id:uid(),name:'New card',price:'',icon:'🔥',cat:'fire',note:''});
-  else if(a==='rm'){S.cards=S.cards.filter(c=>c.id!==v);S.fests.forEach(x=>delete x.items[v]);}
+  else if(a==='add')S.cards.push({id:uid(),name:'New card',price:'',icon:'🔥',cat:'fire',note:'',imgs:[]});
+  else if(a==='imgrm'){const c=S.cards.find(x=>x.id===v),id=b.dataset.k;c.imgs=c.imgs.filter(x=>x!==id);delImg(id);}
+  else if(a==='imgcover'){const c=S.cards.find(x=>x.id===v),id=b.dataset.k;c.imgs=[id,...c.imgs.filter(x=>x!==id)];}
+  else if(a==='rm'){const dc=S.cards.find(c=>c.id===v);if(dc)dc.imgs.forEach(delImg);S.cards=S.cards.filter(c=>c.id!==v);S.fests.forEach(x=>delete x.items[v]);}
   else if(a==='dup'||a==='blank'){const n={id:uid(),name:a==='dup'?f.name+' copy':'New festival',info:'',pub:false,items:a==='dup'?JSON.parse(JSON.stringify(f.items)):{}};S.fests.push(n);S.cur=n.id;}
   else if(a==='del'){if(!delArm)delArm=true;else{delArm=false;S.fests=S.fests.filter(x=>x.id!==f.id);if(!S.fests.length)S.fests.push({id:uid(),name:'New festival',info:'',pub:false,items:{}});S.cur=S.fests[0].id;}}
   else if(a==='pubtog'){const x=S.fests.find(q=>q.id===v);x.pub=!x.pub;}
@@ -244,6 +306,7 @@ document.addEventListener('change',e=>{
   if(S.locked)return;
   const t=e.target,a=t.dataset.a;
   if(a==='fest'){S.cur=t.value;delArm=false;save();render();}
+  else if(a==='imgadd'){addImgs(t.dataset.v,[...t.files]);t.value='';}
   else if(a==='edit'){const c=S.cards.find(x=>x.id===t.dataset.v);if(c){c[t.dataset.f]=t.value;save();if(t.dataset.f==='cat')render();}}
   else if(a==='rfile'){const fl=t.files&&t.files[0];if(!fl)return;fl.text().then(x=>{try{const d=JSON.parse(x);if(d.app!=='enfuego-menu'||!Array.isArray(d.cards)||!Array.isArray(d.fests))throw 0;pend=d;msg='';}catch(err){pend=null;msg='That file isn’t an Enfuego backup.';}render();});}
   else if(a==='gh'){S.gh[t.dataset.f]=t.value.trim();save();}
@@ -251,7 +314,7 @@ document.addEventListener('change',e=>{
   else if(t.id==='finfo'){fest().info=t.value;save();}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='ukpin')tryUnlock()});
-render();
+render();loadImgs();try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
 if('serviceWorker' in navigator){addEventListener('load',()=>{try{navigator.serviceWorker.register('sw.js').catch(()=>{})}catch(e){}})}
 </script>
 </body>

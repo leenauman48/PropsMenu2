@@ -33,6 +33,15 @@ button.on{background:var(--c,var(--chalk));color:var(--board)}
 .tag{font-size:16px;color:var(--dim);margin-top:6px}
 .gh{grid-column:1/-1;font-family:var(--hand);font-size:28px;font-weight:700;color:var(--c);margin:8px 0 -6px;border-bottom:2px dashed var(--c);line-height:1.1}
 .ds{font-size:16px;color:var(--dim);line-height:1.2;margin-top:4px}
+.ph{width:92px;height:92px;object-fit:cover;border-radius:10px;border:2px solid var(--dim);background:var(--board)}
+.gd{display:flex;gap:4px;justify-content:center;margin:3px 0 0}.gd i{width:5px;height:5px;border-radius:50%;background:var(--chalk);opacity:.35}.gd i:first-child{opacity:.85}
+.card[data-g]{cursor:pointer}
+.gv{position:fixed;inset:0;z-index:50;background:rgba(14,17,18,.94);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:10px;padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+.gx{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;width:44px;height:44px;border-radius:50%;padding:0;font-size:20px;background:var(--board)}
+.gs{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;width:100%;padding:0 7%;scroll-padding:0 7%;scrollbar-width:none}.gs::-webkit-scrollbar{display:none}
+.gp{flex:0 0 86%;scroll-snap-align:center}.gp img{width:100%;max-height:64vh;object-fit:contain;border-radius:12px;display:block}
+.gdots{display:flex;gap:8px}.gdots i{width:8px;height:8px;border-radius:50%;background:var(--chalk);opacity:.3}.gdots i.on{opacity:.9}
+.gcap{max-width:520px;text-align:center;padding:0 16px;font-size:20px}.gcap b{font-family:var(--hand);font-size:30px}.gcap p{color:var(--dim);margin:4px 0 0;font-size:17px}
 .empty{padding:30px 0;color:var(--dim);font-size:20px}
 </style>
 </head>
@@ -47,7 +56,18 @@ const TIERS={kit:'Available Today',home:'Ready To Ship',order:'Made To Order'};
 const CATS={fire:'Fire props',acc:'Accessories',life:'Lifestyle'};
 const ORD=['fire','acc','life'];
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let D=null,fid='',flt='all';
+let D=null,fid='',flt='all',LIST=[];
+function gal(name,price,desc,urls){
+  closeGal();const d=document.createElement('div');d.id='gv';d.className='gv';
+  d.innerHTML=`<button class="gx" aria-label="Close">✕</button><div class="gs">${urls.map(u=>`<div class="gp"><img src="${esc(u)}" alt=""></div>`).join('')}</div>${urls.length>1?`<div class="gdots">${urls.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}<div class="gcap"><b>${esc(name)}</b>${price!==''&&price!=null?' <span>$'+esc(price)+'</span>':''}${desc?`<p>${esc(desc)}</p>`:''}</div>`;
+  document.body.appendChild(d);
+  const sc=d.querySelector('.gs'),dots=d.querySelectorAll('.gdots i');
+  sc.addEventListener('scroll',()=>{const w=sc.children[0].offsetWidth+12,i=Math.min(urls.length-1,Math.round(sc.scrollLeft/w));dots.forEach((x,k)=>x.classList.toggle('on',k===i))});
+  d.addEventListener('click',e=>{if(e.target===d||e.target===sc||e.target.closest('.gx'))closeGal()});
+}
+function closeGal(){const g=document.getElementById('gv');if(g)g.remove()}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGal()});
+const pids=c=>(c.imgs||[]).filter(x=>/^[a-z0-9]+$/.test(x));
 function render(){
   const el=document.getElementById('app'),inf=document.getElementById('info');
   if(D===null){el.innerHTML='<div class="empty">Can’t load the menu right now. Check your connection and try again.</div>';return;}
@@ -59,16 +79,19 @@ function render(){
   if(fs.length>1)h+=`<div class="chips">${fs.map(x=>`<button data-f="${esc(x.id)}" class="${x.id===f.id?'on':''}">${esc(x.name)}</button>`).join('')}</div>`;
   else h+=`<h2 style="font-family:var(--hand);font-size:30px;margin:0">${esc(f.name)}</h2>`;
   h+=`<div class="chips"><button data-c="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-c="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
-  const items=(f.items||[]).map(c=>({...c,cat:CATS[c.cat]?c.cat:'fire'})).filter(c=>flt==='all'||c.cat===flt).sort((x,y)=>ORD.indexOf(x.cat)-ORD.indexOf(y.cat));let last='';
+  const items=(f.items||[]).map(c=>({...c,cat:CATS[c.cat]?c.cat:'fire'})).filter(c=>flt==='all'||c.cat===flt).sort((x,y)=>ORD.indexOf(x.cat)-ORD.indexOf(y.cat));let last='';LIST=items;
   if(!items.length)h+='<div class="empty">Nothing in this group.</div>';
   else h+='<div class="grid">'+items.map((c,i)=>{
     const cat=c.cat,gh=(flt==='all'&&cat!==last)?(last=cat,`<h3 class="gh cat-${cat}">${CATS[cat]}</h3>`):'',t=TIERS[c.tier]?c.tier:'order',r=((i*37)%5-2)*.5;
-    return gh+`<div class="card cat-${cat} t-${t}" style="--r:${r}deg"><div class="ic">${esc(c.icon)}</div><div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''&&c.price!=null?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.note?`<div class="ds">${esc(c.note)}</div>`:''}</div>`;
+    const ids=pids(c),pic=ids.length?`<img class="ph" loading="lazy" src="img/${ids[0]}-t.jpg" alt="">${ids.length>1?`<div class="gd">${ids.map(()=>'<i></i>').join('')}</div>`:''}`:`<div class="ic">${esc(c.icon)}</div>`;
+    return gh+`<div class="card cat-${cat} t-${t}" ${ids.length?`data-g="${i}"`:''} style="--r:${r}deg">${pic}<div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''&&c.price!=null?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.note?`<div class="ds">${esc(c.note)}</div>`:''}</div>`;
   }).join('')+'</div>';
   el.innerHTML=h;
 }
 document.addEventListener('click',e=>{
-  const b=e.target.closest('button');if(!b)return;
+  const b=e.target.closest('button');
+  if(!b){const g=e.target.closest('.card[data-g]');if(g){const c=LIST[+g.dataset.g];if(c)gal(c.name,c.price,c.note,pids(c).map(id=>'img/'+id+'.jpg'));}return;}
+  if(b.closest('#gv'))return;
   if(b.dataset.f){fid=b.dataset.f;try{history.replaceState(null,'','#'+fid)}catch(x){}}
   if(b.dataset.c)flt=b.dataset.c;
   render();
