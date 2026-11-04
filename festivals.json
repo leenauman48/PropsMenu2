@@ -1,1 +1,469 @@
-{"updated":"","festivals":[]}
+{
+ "updated": "2026-11-04T03:06:18.835Z",
+ "festivals": [
+  {
+   "id": "g1olp8n",
+   "name": "Current stock",
+   "info": "",
+   "items": [
+    {
+     "name": "Poi Head 7 layer Hand Stitched",
+     "icon": "🔥",
+     "price": "70",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "Beefy 7 layer Poi ",
+     "imgs": [
+      "jv3qfb6",
+      "esukoi1"
+     ]
+    },
+    {
+     "name": "Chain Meteor Dart Head",
+     "icon": "☄️",
+     "price": "140",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "",
+     "imgs": [
+      "0s18wna",
+      "8lkddbl"
+     ]
+    },
+    {
+     "name": "Contact staff",
+     "icon": "🪄",
+     "price": "250",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "63\" & 70\" , can cut to size",
+     "imgs": [
+      "d7t7x8z",
+      "aidnfrt",
+      "2t8wggb",
+      "kwkgwa4"
+     ]
+    },
+    {
+     "name": "Rope Dart Head",
+     "icon": "🪢",
+     "price": "70",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "Fantastic Ground Burns!!!",
+     "imgs": [
+      "xzwo3qb",
+      "wenxfvx"
+     ]
+    },
+    {
+     "name": "Earrings",
+     "icon": "🦻",
+     "price": "15",
+     "cat": "life",
+     "tier": "kit",
+     "note": "Always rocking virgin wicks!",
+     "imgs": []
+    },
+    {
+     "name": "Necklace ",
+     "icon": "🔥",
+     "price": "10",
+     "cat": "life",
+     "tier": "kit",
+     "note": "In-Crowd fashion .",
+     "imgs": []
+    },
+    {
+     "name": "5 Layer Poi Head Hand Stitched",
+     "icon": "🔥",
+     "price": "50",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "4 inch fabric ",
+     "imgs": []
+    },
+    {
+     "name": "Fire Orbi (experimental)",
+     "icon": "🔥",
+     "price": "40",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "The king of spin-offs!",
+     "imgs": []
+    },
+    {
+     "name": "Kevlar Koozie",
+     "icon": "🔥",
+     "price": "20",
+     "cat": "acc",
+     "tier": "kit",
+     "note": "Burn beers",
+     "imgs": []
+    },
+    {
+     "name": "Dragon Trails",
+     "icon": "🔥",
+     "price": "20",
+     "cat": "acc",
+     "tier": "kit",
+     "note": "Dragon staff Speed Trainer and Day Prop adapter",
+     "imgs": []
+    },
+    {
+     "name": "Doubles Covers",
+     "icon": "🔥",
+     "price": "20",
+     "cat": "acc",
+     "tier": "kit",
+     "note": "Colorful doubles covers",
+     "imgs": []
+    },
+    {
+     "name": "Waterproof Doubles Covers",
+     "icon": "🔥",
+     "price": "80",
+     "cat": "acc",
+     "tier": "kit",
+     "note": "Made with raincoat fabric",
+     "imgs": []
+    },
+    {
+     "name": "HD Key Retractor",
+     "icon": "🔥",
+     "price": "15",
+     "cat": "life",
+     "tier": "kit",
+     "note": "Keychain",
+     "imgs": []
+    },
+    {
+     "name": "Staff Covers",
+     "icon": "🔥",
+     "price": "15",
+     "cat": "acc",
+     "tier": "kit",
+     "note": "Fits most 5- Layer Staves",
+     "imgs": []
+    },
+    {
+     "name": "Angel Stick lite",
+     "icon": "🔥",
+     "price": "100",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "Fully wrapped devil stick, tapered",
+     "imgs": []
+    },
+    {
+     "name": "Wrought-Iron Doubles",
+     "icon": "🔥",
+     "price": "125",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "Workout equipment finally looks cool!!",
+     "imgs": []
+    },
+    {
+     "name": "Lighter leash",
+     "icon": "🔥",
+     "price": "5",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "Lighter never leaves the ring!!! Essential!!!!",
+     "imgs": []
+    }
+   ]
+  },
+  {
+   "id": "t6wchf7",
+   "name": "Made to order",
+   "info": "",
+   "items": [
+    {
+     "name": "Chain Meteor Dart Head",
+     "icon": "☄️",
+     "price": "140",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "",
+     "imgs": [
+      "0s18wna",
+      "8lkddbl"
+     ]
+    },
+    {
+     "name": "Contact staff",
+     "icon": "🪄",
+     "price": "250",
+     "cat": "fire",
+     "tier": "order",
+     "note": "63\" & 70\" , can cut to size",
+     "imgs": [
+      "d7t7x8z",
+      "aidnfrt",
+      "2t8wggb",
+      "kwkgwa4"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "7qun8qx",
+   "name": "All recipes",
+   "info": "",
+   "items": [
+    {
+     "name": "Poi Head 7 layer Hand Stitched",
+     "icon": "🔥",
+     "price": "70",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Beefy 7 layer Poi ",
+     "imgs": [
+      "jv3qfb6",
+      "esukoi1"
+     ]
+    },
+    {
+     "name": "Chain Meteor Dart Head",
+     "icon": "☄️",
+     "price": "140",
+     "cat": "fire",
+     "tier": "order",
+     "note": "",
+     "imgs": [
+      "0s18wna",
+      "8lkddbl"
+     ]
+    },
+    {
+     "name": "Contact staff",
+     "icon": "🪄",
+     "price": "250",
+     "cat": "fire",
+     "tier": "order",
+     "note": "63\" & 70\" , can cut to size",
+     "imgs": [
+      "d7t7x8z",
+      "aidnfrt",
+      "2t8wggb",
+      "kwkgwa4"
+     ]
+    },
+    {
+     "name": "Rope Dart Head",
+     "icon": "🪢",
+     "price": "70",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Fantastic Ground Burns!!!",
+     "imgs": [
+      "xzwo3qb",
+      "wenxfvx"
+     ]
+    },
+    {
+     "name": "Charcoal dart cage",
+     "icon": "🧺",
+     "price": "90",
+     "cat": "fire",
+     "tier": "order",
+     "note": "",
+     "imgs": []
+    },
+    {
+     "name": "Fire fans (pair)",
+     "icon": "🪭",
+     "price": "175",
+     "cat": "fire",
+     "tier": "order",
+     "note": "5-wick . 7 wick = 200",
+     "imgs": [
+      "tpmjn44",
+      "66na4e6"
+     ]
+    },
+    {
+     "name": "Earrings",
+     "icon": "🦻",
+     "price": "15",
+     "cat": "life",
+     "tier": "order",
+     "note": "Always rocking virgin wicks!",
+     "imgs": []
+    },
+    {
+     "name": "Necklace ",
+     "icon": "🔥",
+     "price": "10",
+     "cat": "life",
+     "tier": "order",
+     "note": "In-Crowd fashion .",
+     "imgs": []
+    },
+    {
+     "name": "5 Layer Poi Head Hand Stitched",
+     "icon": "🔥",
+     "price": "50",
+     "cat": "fire",
+     "tier": "order",
+     "note": "4 inch fabric ",
+     "imgs": []
+    },
+    {
+     "name": "Fire Orbi (experimental)",
+     "icon": "🔥",
+     "price": "40",
+     "cat": "fire",
+     "tier": "order",
+     "note": "The king of spin-offs!",
+     "imgs": []
+    },
+    {
+     "name": "Kevlar Koozie",
+     "icon": "🔥",
+     "price": "20",
+     "cat": "acc",
+     "tier": "order",
+     "note": "Burn beers",
+     "imgs": []
+    },
+    {
+     "name": "Dragon Trails",
+     "icon": "🔥",
+     "price": "20",
+     "cat": "acc",
+     "tier": "order",
+     "note": "Dragon staff Speed Trainer and Day Prop adapter",
+     "imgs": []
+    },
+    {
+     "name": "Doubles Covers",
+     "icon": "🔥",
+     "price": "20",
+     "cat": "acc",
+     "tier": "order",
+     "note": "Colorful doubles covers",
+     "imgs": []
+    },
+    {
+     "name": "Waterproof Doubles Covers",
+     "icon": "🔥",
+     "price": "80",
+     "cat": "acc",
+     "tier": "order",
+     "note": "Made with raincoat fabric",
+     "imgs": []
+    },
+    {
+     "name": "HD Key Retractor",
+     "icon": "🔥",
+     "price": "15",
+     "cat": "life",
+     "tier": "order",
+     "note": "Keychain",
+     "imgs": []
+    },
+    {
+     "name": "Staff Covers",
+     "icon": "🔥",
+     "price": "15",
+     "cat": "acc",
+     "tier": "order",
+     "note": "Fits most 5- Layer Staves",
+     "imgs": []
+    },
+    {
+     "name": "Angel Stick lite",
+     "icon": "🔥",
+     "price": "100",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Fully wrapped devil stick, tapered",
+     "imgs": []
+    },
+    {
+     "name": "Wrought-Iron Doubles",
+     "icon": "🔥",
+     "price": "125",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Workout equipment finally looks cool!!",
+     "imgs": []
+    },
+    {
+     "name": "Angel Stick HD",
+     "icon": "🔥",
+     "price": "200",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Extra beefy ends for abuse . Not actually preferred by enthusiasts . Vestigial recipe",
+     "imgs": [
+      "4p5ougr",
+      "b372xjf"
+     ]
+    },
+    {
+     "name": "Sun Staff",
+     "icon": "🔥",
+     "price": "250",
+     "cat": "fire",
+     "tier": "order",
+     "note": "2 Wicks longer than 14 inches on durable aluminum , with weighted steel ends . Ethereal Series . ",
+     "imgs": [
+      "qkoydm9",
+      "q5p4wea",
+      "w451j6k"
+     ]
+    },
+    {
+     "name": "Enfuegoball Summerball V3",
+     "icon": "🔥",
+     "price": "178",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Signature juggling orbular , enlarged for cooling . Ornate geometry .",
+     "imgs": [
+      "570f6m2",
+      "khz37u5",
+      "w9r9tdd",
+      "tp8ju19",
+      "tpa79ja",
+      "1150cn4"
+     ]
+    },
+    {
+     "name": "Sword",
+     "icon": "🔥",
+     "price": "150",
+     "cat": "fire",
+     "tier": "order",
+     "note": "",
+     "imgs": [
+      "k3r4chv",
+      "izu4nst"
+     ]
+    },
+    {
+     "name": "Cheeseburger Lotus Poi (Pair)",
+     "icon": "🔥",
+     "price": "180",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Cheeseburger with pickle on the top . Serious fire for not so serious people .",
+     "imgs": []
+    },
+    {
+     "name": "Lighter leash",
+     "icon": "🔥",
+     "price": "5",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Lighter never leaves the ring!!! Essential!!!!",
+     "imgs": []
+    }
+   ]
+  }
+ ]
+}
