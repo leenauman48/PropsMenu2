@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-04T06:09:20.560Z",
+ "updated": "2026-11-04T17:47:26.222Z",
  "contact": {
   "name": "Lee Enfuego",
   "phone": "7609759719",
@@ -7,7 +7,137 @@
   "handle": "@enfuegoballco"
  },
  "repNote": "",
- "repairs": [],
+ "repairs": [
+  {
+   "name": "Stitches",
+   "icon": "🛠️",
+   "cat": "fire",
+   "imgs": [],
+   "np": 0,
+   "rp": "10",
+   "note": ""
+  },
+  {
+   "name": "Heavy stitches",
+   "icon": "🛠️",
+   "cat": "fire",
+   "imgs": [],
+   "np": 0,
+   "rp": "20",
+   "note": ""
+  },
+  {
+   "name": "Labor",
+   "icon": "🛠️",
+   "cat": "fire",
+   "imgs": [],
+   "np": 0,
+   "rp": "35",
+   "note": "35/hour when surging"
+  },
+  {
+   "name": "Contact staff",
+   "icon": "🪄",
+   "cat": "fire",
+   "imgs": [
+    "owa6ljz",
+    "f7vttpq",
+    "bhpcfsc",
+    "27q2tne"
+   ],
+   "np": 250,
+   "rp": "80",
+   "note": ""
+  },
+  {
+   "name": "Fire fans (pair)",
+   "icon": "🪭",
+   "cat": "fire",
+   "imgs": [
+    "40oawdj",
+    "eznuxr1",
+    "tpmjn44",
+    "66na4e6"
+   ],
+   "np": 175,
+   "rp": "135",
+   "note": "Hand Stitched"
+  },
+  {
+   "name": "Fire fans (pair)",
+   "icon": "🪭",
+   "cat": "fire",
+   "imgs": [
+    "40oawdj",
+    "eznuxr1",
+    "tpmjn44",
+    "66na4e6"
+   ],
+   "np": 175,
+   "rp": "90",
+   "note": "Screws"
+  },
+  {
+   "name": "Rope Dart Head",
+   "icon": "🪢",
+   "cat": "fire",
+   "imgs": [
+    "69bx38z",
+    "6rnq60t",
+    "jjqxu6z",
+    "wenxfvx",
+    "xzwo3qb"
+   ],
+   "np": 70,
+   "rp": "60",
+   "note": ""
+  },
+  {
+   "name": "Storage",
+   "icon": "🛠️",
+   "cat": "fire",
+   "imgs": [],
+   "np": 0,
+   "rp": "35",
+   "note": ""
+  },
+  {
+   "name": "Optional Bench Fee",
+   "icon": "🛠️",
+   "cat": "fire",
+   "imgs": [],
+   "np": 0,
+   "rp": "20",
+   "note": ""
+  },
+  {
+   "name": "4\" kevlar felt *1/8",
+   "icon": "🛠️",
+   "cat": "fire",
+   "imgs": [],
+   "np": 0,
+   "rp": "2",
+   "note": "2$/ft"
+  },
+  {
+   "name": "2\" kevlar felt *1/8",
+   "icon": "🛠️",
+   "cat": "fire",
+   "imgs": [],
+   "np": 0,
+   "rp": "1.7",
+   "note": ""
+  },
+  {
+   "name": "1\" kevlar felt",
+   "icon": "🛠️",
+   "cat": "fire",
+   "imgs": [],
+   "np": 0,
+   "rp": "1.5",
+   "note": ""
+  }
+ ],
  "festivals": [
   {
    "id": "g1olp8n",
@@ -124,6 +254,22 @@
      ]
     },
     {
+     "name": "Enfuegoball Summerball V3",
+     "icon": "🔥",
+     "price": "178",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "Signature juggling orbular , enlarged for cooling . Ornate geometry .",
+     "imgs": [
+      "sszkl21",
+      "v1ch4k4",
+      "0pg2bfj",
+      "h0s2noi",
+      "9m6tb77",
+      "hmkbc74"
+     ]
+    },
+    {
      "name": "Lighter leash",
      "icon": "🔥",
      "price": "5",
@@ -132,6 +278,41 @@
      "note": "Lighter never leaves the ring!!! Essential!!!! (Keys not included)",
      "imgs": [
       "y1wqfoa"
+     ]
+    },
+    {
+     "name": "Fire breathers wand",
+     "icon": "🔥",
+     "price": "50",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "Long duration, not fire-eater friendly . 2.5\" wick ",
+     "imgs": [
+      "utcsndf"
+     ]
+    },
+    {
+     "name": "Vapor Trick & Fire Eating Wand",
+     "icon": "🔥",
+     "price": "150",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Eater friendly vapor torches",
+     "imgs": [
+      "0896dwh",
+      "egvfpu7",
+      "t7c8mm7"
+     ]
+    },
+    {
+     "name": "Wild sage",
+     "icon": "🔥",
+     "price": "5",
+     "cat": "fire",
+     "tier": "kit",
+     "note": "Aura cleansing . Ask about the sage staff",
+     "imgs": [
+      "5mml3fm"
      ]
     },
     {
@@ -147,7 +328,7 @@
      ]
     },
     {
-     "name": "Dragon Trails",
+     "name": "Dragon Tails",
      "icon": "🔥",
      "price": "20",
      "cat": "acc",
@@ -375,7 +556,7 @@
      ]
     },
     {
-     "name": "Angel Stick HD",
+     "name": "Angel Stick Heavy Duty",
      "icon": "🔥",
      "price": "200",
      "cat": "fire",
@@ -459,6 +640,30 @@
      ]
     },
     {
+     "name": "Fire breathers wand",
+     "icon": "🔥",
+     "price": "50",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Long duration, not fire-eater friendly . 2.5\" wick ",
+     "imgs": [
+      "utcsndf"
+     ]
+    },
+    {
+     "name": "Vapor Trick & Fire Eating Wand",
+     "icon": "🔥",
+     "price": "150",
+     "cat": "fire",
+     "tier": "order",
+     "note": "Eater friendly vapor torches",
+     "imgs": [
+      "0896dwh",
+      "egvfpu7",
+      "t7c8mm7"
+     ]
+    },
+    {
      "name": "Kevlar Koozie",
      "icon": "🔥",
      "price": "20",
@@ -471,7 +676,7 @@
      ]
     },
     {
-     "name": "Dragon Trails",
+     "name": "Dragon Tails",
      "icon": "🔥",
      "price": "20",
      "cat": "acc",
