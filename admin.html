@@ -68,6 +68,10 @@ h1{font-size:34px}
 .pics{flex-basis:100%;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.th{position:relative}.th img{width:72px;height:72px;object-fit:cover;border-radius:8px;border:2px solid var(--dim);display:block}.th.cv img{border-color:var(--chalk)}.th .tb{border:0;padding:0;background:none}.th button:not(.tb){position:absolute;top:-8px;right:-8px;width:22px;height:22px;padding:0;font-size:12px;border-radius:50%;background:var(--board)}
 .addp{border:2px dashed var(--chalk);border-radius:10px;padding:6px 12px;cursor:pointer}.addp input{display:none}
 .lib input.e:disabled{opacity:.3}
+.mv{display:flex;gap:4px;flex:none}.mv button{width:38px;height:38px;padding:0}
+.bc{border:3px dashed var(--chalk);border-radius:16px 12px 18px 11px;background:var(--board2);padding:22px 26px;width:min(86vw,420px);display:flex;flex-direction:column;gap:6px;font-size:22px}
+.bc .bn{font-family:var(--hand);font-size:44px;font-weight:700;line-height:1}.bc .bb{font-family:var(--hand);font-size:30px;font-weight:700;color:var(--kit);margin-bottom:6px}.bc a{color:var(--chalk);text-decoration:none}
+
 .lib{gap:6px;padding-top:6px;padding-bottom:6px}.lib input.e{width:50px;padding:5px 4px}.lib input.n{width:150px}.lib input.p{width:64px}.lib select{width:122px}
 .lib input.o{flex:1;min-width:0;width:auto}
 .pbtn{position:relative;width:48px;height:42px;padding:0;overflow:hidden;font-size:20px;flex:none}.pbtn img{width:100%;height:100%;object-fit:cover;display:block}.pbtn b{position:absolute;right:2px;bottom:2px;background:var(--chalk);color:var(--board);border-radius:9px;font-size:13px;padding:0 5px;line-height:1.3}
@@ -102,14 +106,15 @@ if(!S||!S.cards)S=seed();
 S.cards.forEach(c=>{if(!CATS[c.cat])c.cat='fire';if(c.desc&&!c.note)c.note=c.desc;delete c.desc;if(c.note==='Ask about lead time')c.note='';c.note=c.note||'';c.imgs=Array.isArray(c.imgs)?c.imgs:[]});
 S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub});
 S.up=S.up||{};
+S.contact=S.contact||{name:'Lee Enfuego',phone:'7609759719',email:'Enfuego'+'ball@gmail.com',handle:'@enfuegoballco'};
 S.gh=S.gh||{owner:'leenauman48',repo:'PropsMenu2',branch:'main',token:''};
 if(!S.cur||!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;
 S.locked=!!(S.locked&&S.pin);
 let delArm=false,flt='all',msg='';
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const fest=()=>S.fests.find(f=>f.id===S.cur);
-function payload(){return {updated:new Date().toISOString(),festivals:S.fests.filter(f=>f.pub).map(f=>({id:f.id,name:f.name,info:f.info,items:S.cards.filter(c=>f.items[c.id]).map(c=>({name:c.name,icon:c.icon,price:c.price,cat:c.cat,tier:f.items[c.id].tier,note:c.note,imgs:c.imgs}))}))}}
-const sig=()=>JSON.stringify(payload().festivals);
+function payload(){return {updated:new Date().toISOString(),contact:S.contact,festivals:S.fests.filter(f=>f.pub).map(f=>({id:f.id,name:f.name,info:f.info,items:sortF(S.cards.filter(c=>f.items[c.id]),f).map(c=>({name:c.name,icon:c.icon,price:c.price,cat:c.cat,tier:f.items[c.id].tier,note:c.note,imgs:c.imgs}))}))}}
+const sig=()=>JSON.stringify([payload().festivals,S.contact]);
 const bsig=()=>JSON.stringify([S.cards,S.fests]);
 const IMG={};
 const idb=new Promise((ok,no)=>{try{const q=indexedDB.open('enfuego-img',1);q.onupgradeneeded=()=>q.result.createObjectStore('i',{keyPath:'id'});q.onsuccess=()=>ok(q.result);q.onerror=()=>no(q.error)}catch(e){no(e)}});idb.catch(()=>{});
@@ -137,6 +142,48 @@ function gal(name,price,desc,urls){
 function closeGal(){const g=document.getElementById('gv');if(g)g.remove()}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGal()});
 function openG(id){const c=S.cards.find(x=>x.id===id);if(!c)return;const u=c.imgs.map(i=>IMG[i]&&IMG[i].f).filter(Boolean);if(u.length)gal(c.name,c.price,c.note,u);}
+function ccDigits(p){return String(p||'').replace(/\D/g,'')}
+function ccPhone(p){const d=ccDigits(p);return d.length===10?`(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`:String(p||'')}
+function ccTel(p){const d=ccDigits(p);return d.length===10?'+1'+d:'+'+d}
+function ccVcf(c){
+  const q=v=>String(v||'').replace(/[\r\n]+/g,' ').replace(/([\\,;])/g,'\\$1'),n=String(c.name||'').trim().split(/\s+/),last=n.length>1?n.pop():'',first=n.join(' ');
+  return ['BEGIN:VCARD','VERSION:3.0','FN:'+q(c.name),'N:'+q(last)+';'+q(first)+';;;','ORG:Enfuego Ball Co','TEL;TYPE=CELL:'+ccTel(c.phone),'EMAIL:'+q(c.email),'NOTE:'+q(c.handle),'END:VCARD'].join('\r\n');
+}
+async function ccJpg(c){
+  try{await Promise.all([document.fonts.load("700 90px Caveat"),document.fonts.load("40px 'Patrick Hand'")]);}catch(e){}
+  const W=1050,H=600,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  g.fillStyle='#23282a';g.fillRect(0,0,W,H);
+  g.strokeStyle='#f1efe6';g.lineWidth=5;g.setLineDash([18,10]);g.strokeRect(24,24,W-48,H-48);g.setLineDash([]);
+  const poly=(pts,col)=>{g.fillStyle=col;g.beginPath();pts.forEach(([x,y],i)=>{const X=60+(x-112)*.95,Y=100+(y-70)*.95;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();g.fill()};
+  poly([[256,70],[350,200],[400,300],[370,400],[300,450],[212,450],[142,400],[112,300],[165,215],[200,260],[215,170]],'#f2c46d');
+  poly([[256,200],[320,290],[335,370],[295,420],[217,420],[177,370],[192,300],[230,310]],'#e58fb0');
+  poly([[256,300],[295,355],[280,410],[232,410],[217,355]],'#f1efe6');
+  g.fillStyle='#f1efe6';g.font="700 100px Caveat,cursive";g.fillText(c.name||'',390,205);
+  g.fillStyle='#f2c46d';g.font="700 56px Caveat,cursive";g.fillText('Enfuego Ball Co',390,275);
+  g.fillStyle='#f1efe6';g.font="40px 'Patrick Hand',sans-serif";
+  g.fillText(ccPhone(c.phone),390,375);g.fillText(c.email||'',390,440);g.fillText(c.handle||'',390,505);
+  return new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+}
+async function ccSend(file){
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:file.name});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
+}
+function openCC(){
+  closeGal();const c=getContact(),d=document.createElement('div');d.id='gv';d.className='gv';
+  d.innerHTML=`<button class="gx" aria-label="Close">✕</button><div class="bc"><div class="bn">${esc(c.name)}</div><div class="bb">Enfuego Ball Co</div><a href="tel:${esc(ccTel(c.phone))}">${esc(ccPhone(c.phone))}</a><a href="mailto:${esc(c.email)}">${esc(c.email)}</a><span>${esc(c.handle)}</span></div><div class="bar" style="justify-content:center"><button data-cc="jpg" class="on">Save as JPEG</button><button data-cc="vcf">Add to Contacts</button></div>`;
+  document.body.appendChild(d);
+  const jp=ccJpg(c);jp.catch(()=>{});
+  d.addEventListener('click',async e=>{
+    const k=e.target.closest('[data-cc]');
+    if(k){try{if(k.dataset.cc==='jpg')ccSend(new File([await jp],'enfuego-contact.jpg',{type:'image/jpeg'}));else ccSend(new File([ccVcf(c)],'Enfuego-Contact.vcf',{type:'text/vcard'}));}catch(x){}return;}
+    if(e.target===d||e.target.closest('.gx'))closeGal();
+  });
+}
+
+function getContact(){return S.contact}
+function ARW(id){return `<div class="ctl"><button data-a="mvf" data-v="${id}" data-d="-1" aria-label="Earlier">◀</button><button data-a="mvf" data-v="${id}" data-d="1" aria-label="Later">▶</button></div>`}
+function sortF(a,f){const o=(f&&f.ord)||[];const ix=c=>{const k=o.indexOf(c.id);return k<0?1e6+S.cards.indexOf(c):k};return a.slice().sort((x,y)=>ORD.indexOf(x.cat)-ORD.indexOf(y.cat)||ix(x)-ix(y))}
+let arr=false;
 let bkFile=null;
 let pmErr='',pmId=null,pend=null,uk=false,ukMsg='',fails=0,wait=0;
 const hp=async(pin,salt)=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+pin)))].map(x=>x.toString(16).padStart(2,'0')).join('');
@@ -152,7 +199,7 @@ const festPicker=()=>`<select data-a="fest" aria-label="Festival">${S.fests.map(
 const chips=()=>`<div class="chips"><button data-a="flt" data-v="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-a="flt" data-v="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
 function cardH(c,it,i,ctl){
   const t=it.tier,q=it.qty||0,r=((i*37)%5-2)*.5,out=t!=='order'&&q<=0;
-  const low=t==='order'?'':ctl?`<div class="dots">${q<=0?'':q<=12?'●'.repeat(q):'● × '+q}</div><div class="ctl"><button data-a="dec" data-v="${c.id}" aria-label="Sold one">−</button><span>${q}</span><button data-a="inc" data-v="${c.id}" aria-label="Add one">+</button></div>`:'';
+  const low=ctl&&arr?ARW(c.id):t==='order'?'':ctl?`<div class="dots">${q<=0?'':q<=12?'●'.repeat(q):'● × '+q}</div><div class="ctl"><button data-a="dec" data-v="${c.id}" aria-label="Sold one">−</button><span>${q}</span><button data-a="inc" data-v="${c.id}" aria-label="Add one">+</button></div>`:'';
   const cov=c.imgs[0],pic=cov?`<img class="ph" ${IMG[cov]?`src="${IMG[cov].t}"`:''} alt="">${c.imgs.length>1?`<div class="gd">${c.imgs.map(()=>'<i></i>').join('')}</div>`:''}`:`<div class="ic">${esc(c.icon)}</div>`;
   return `<div class="card cat-${c.cat} t-${t} ${out?'sold':''}" ${cov?`data-g="${c.id}"`:''} style="--r:${r}deg">${pic}<div class="nm">${esc(c.name)}</div><div class="pr">${c.price!==''?'<b>$'+esc(c.price)+'</b>':''}<span class="tw">${TIERS[t]}</span></div>${c.note?`<div class="ds">${esc(c.note)}</div>`:''}${low}${out?'<div class="stamp">Sold out</div>':''}</div>`;
 }
@@ -161,20 +208,21 @@ function gridH(list,f,ctl){
   for(const c of list){if(flt==='all'&&c.cat!==last){h+=`<h3 class="gh cat-${c.cat}">${CATS[c.cat]}</h3>`;last=c.cat;}h+=cardH(c,f.items[c.id],i++,ctl);}
   return h+'</div>';
 }
-const shown=f=>sortC(S.cards.filter(c=>f.items[c.id]&&(flt==='all'||c.cat===flt)));
+const shown=f=>sortF(S.cards.filter(c=>f.items[c.id]&&(flt==='all'||c.cat===flt)),f);
 function vMenu(){
   const f=fest(),ids=shown(f);
-  const h=`<div class="bar">${festPicker()}</div>${chips()}`;
+  const h=`<div class="bar">${festPicker()}<button data-a="arr" class="${arr?'on':''}">Reorder</button><button data-a="cc">Order / Contact</button></div>${chips()}`;
   return ids.length?h+gridH(ids,f,true):h+`<div class="empty">Nothing here yet. Open Load and pick your cards.</div>`;
 }
 function vPres(){
   const f=fest(),ids=shown(f);
-  return `<div class="pres"><h1>Enfuego Ball Co</h1><h2 class="fh">${esc(f.name)}</h2>${f.info?`<p class="hint">${esc(f.info)}</p>`:''}${chips()}${ids.length?gridH(ids,f,false):'<div class="empty">Nothing in this group.</div>'}</div><button class="lock" data-a="ukshow" aria-label="Unlock">🔒</button>${uk?`<div class="ov"><div class="box" style="background:var(--board)"><b>Enter PIN</b><br><input type="password" id="ukpin" inputmode="numeric" autocomplete="off" style="margin:8px 0;width:160px"><div class="bar"><button data-a="ukgo" class="on">Unlock</button><button data-a="ukno">Cancel</button></div>${ukMsg?`<div class="hint">${esc(ukMsg)}</div>`:''}</div></div>`:''}`;
+  return `<div class="pres"><div class="bar" style="justify-content:space-between;flex-wrap:nowrap"><h1>Enfuego Ball Co</h1><button data-a="cc" class="on">Order / Contact</button></div><h2 class="fh">${esc(f.name)}</h2>${f.info?`<p class="hint">${esc(f.info)}</p>`:''}${chips()}${ids.length?gridH(ids,f,false):'<div class="empty">Nothing in this group.</div>'}</div><button class="lock" data-a="ukshow" aria-label="Unlock">🔒</button>${uk?`<div class="ov"><div class="box" style="background:var(--board)"><b>Enter PIN</b><br><input type="password" id="ukpin" inputmode="numeric" autocomplete="off" style="margin:8px 0;width:160px"><div class="bar"><button data-a="ukgo" class="on">Unlock</button><button data-a="ukno">Cancel</button></div>${ukMsg?`<div class="hint">${esc(ukMsg)}</div>`:''}</div></div>`:''}`;
 }
 function vPresent(){
   return `<p class="hint">Present mode shows customers a read-only board of the festival picked below. Nothing can be changed until the PIN is entered, and it stays locked even if the app is closed.</p>${msg?`<div class="msg">${esc(msg)}</div>`:''}
   <div class="bar">${festPicker()}</div>
   <div class="box"><b>${S.pin?'Change PIN':'Set a PIN'}</b><label>New PIN (4 to 8 digits)</label><input id="pin1" type="password" inputmode="numeric" autocomplete="off"><label>Repeat it</label><input id="pin2" type="password" inputmode="numeric" autocomplete="off"><div class="bar" style="margin-top:10px"><button data-a="setpin">Save PIN</button></div></div>
+  <div class="box"><b>Contact card</b><p class="hint">Shown when customers tap Order / Contact. It publishes with your menu.</p>${[['name','Name'],['phone','Phone'],['email','Email'],['handle','Handle']].map(([k,l])=>`<label>${l}</label><input type="text" data-a="ct" data-f="${k}" value="${esc(S.contact[k])}">`).join('')}<div class="bar" style="margin-top:10px"><button data-a="cc">Preview card</button></div></div>
   <div class="bar"><button data-a="present" class="on" ${S.pin?'':'disabled'}>Start presenting</button>${S.pin?'':'<span class="hint" style="margin:0">Set a PIN first.</span>'}</div>
   <p class="hint">For a tougher lock, turn on Guided Access (Settings, Accessibility, Guided Access), then triple-click the side or top button inside the app. It stops anyone leaving the app.</p>`;
 }
@@ -203,9 +251,9 @@ function vLoad(){
   }).join('');
 }
 function vCards(){
-  return `<p class="hint">Make a card once, then load it onto any festival. Notes show to customers under the price. A photo replaces the emoji.</p>`+S.cards.map(c=>{
+  return `<p class="hint">Make a card once, then load it onto any festival. Notes show to customers under the price. A photo replaces the emoji.</p><div class="bar"><button data-a="arr" class="${arr?'on':''}">Reorder</button></div>`+S.cards.map(c=>{
     const n=c.imgs.length,cv=c.imgs[0];
-    return `<div class="row lib cat-${c.cat}"><input class="e" type="text" data-a="edit" data-f="icon" data-v="${c.id}" value="${esc(c.icon)}" aria-label="Icon" ${n?'disabled':''}><input class="n" type="text" data-a="edit" data-f="name" data-v="${c.id}" value="${esc(c.name)}" aria-label="Name"><input class="p" type="text" inputmode="decimal" placeholder="$" data-a="edit" data-f="price" data-v="${c.id}" value="${esc(c.price)}" aria-label="Price"><select data-a="edit" data-f="cat" data-v="${c.id}" aria-label="Category">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${c.cat===k?'selected':''}>${l}</option>`).join('')}</select><input class="o" type="text" placeholder="Notes" data-a="edit" data-f="note" data-v="${c.id}" value="${esc(c.note)}" aria-label="Notes"><button class="pbtn" data-a="pm" data-v="${c.id}" aria-label="Photos">${n?`<img ${IMG[cv]?`src="${IMG[cv].t}"`:''} alt=""><b>${n}</b>`:'📷'}</button><button data-a="rm" data-v="${c.id}" aria-label="Delete card">✕</button></div>`;
+    return `<div class="row lib cat-${c.cat}">${arr?`<span class="mv"><button data-a="mvc" data-v="${c.id}" data-d="-1" aria-label="Up">▲</button><button data-a="mvc" data-v="${c.id}" data-d="1" aria-label="Down">▼</button></span>`:''}<input class="e" type="text" data-a="edit" data-f="icon" data-v="${c.id}" value="${esc(c.icon)}" aria-label="Icon" ${n?'disabled':''}><input class="n" type="text" data-a="edit" data-f="name" data-v="${c.id}" value="${esc(c.name)}" aria-label="Name"><input class="p" type="text" inputmode="decimal" placeholder="$" data-a="edit" data-f="price" data-v="${c.id}" value="${esc(c.price)}" aria-label="Price"><select data-a="edit" data-f="cat" data-v="${c.id}" aria-label="Category">${Object.entries(CATS).map(([k,l])=>`<option value="${k}" ${c.cat===k?'selected':''}>${l}</option>`).join('')}</select><input class="o" type="text" placeholder="Notes" data-a="edit" data-f="note" data-v="${c.id}" value="${esc(c.note)}" aria-label="Notes"><button class="pbtn" data-a="pm" data-v="${c.id}" aria-label="Photos">${n?`<img ${IMG[cv]?`src="${IMG[cv].t}"`:''} alt=""><b>${n}</b>`:'📷'}</button><button data-a="rm" data-v="${c.id}" aria-label="Delete card">✕</button></div>`;
   }).join('')+`<div class="row"><button data-a="add">+ New card</button></div>`+(pmId?pmBox():'');
 }
 function pmBox(){
@@ -288,12 +336,13 @@ document.addEventListener('click',e=>{
   const b=e.target.closest('button[data-a]');
   if(!b){const g=e.target.closest('.card[data-g]');if(g)openG(g.dataset.g);return;}
   const a=b.dataset.a,v=b.dataset.v,f=fest();
-  if(S.locked&&!['flt','ukshow','ukgo','ukno'].includes(a))return;
+  if(S.locked&&!['flt','ukshow','ukgo','ukno','cc'].includes(a))return;
+  if(a==='cc')return openCC();
   if(a==='ukshow'){uk=true;ukMsg='';return render();}
   if(a==='ukno'){uk=false;ukMsg='';return render();}
   if(a==='ukgo')return tryUnlock();
   if(a==='setpin')return setPin();
-  if(a==='present'){if(!S.pin)return;S.locked=true;uk=false;flt='all';save();return render();}
+  if(a==='present'){if(!S.pin)return;arr=false;S.locked=true;uk=false;flt='all';save();return render();}
   if(a!=='del')delArm=false;
   if(a==='publish')return publish();
   if(a==='backup')return backup();
@@ -307,6 +356,9 @@ document.addEventListener('click',e=>{
   else if(a==='tog'){if(f.items[v])delete f.items[v];else f.items[v]={tier:'kit',qty:1};}
   else if(a==='tier')f.items[v].tier=b.dataset.k;
   else if(a==='add')S.cards.push({id:uid(),name:'New card',price:'',icon:'🔥',cat:'fire',note:'',imgs:[]});
+  else if(a==='arr')arr=!arr;
+  else if(a==='mvf'){const d=+b.dataset.d,all=sortF(S.cards.filter(c=>f.items[c.id]),f),c=S.cards.find(x=>x.id===v),same=all.filter(x=>x.cat===c.cat),k=same.indexOf(c),j=k+d;if(j>=0&&j<same.length){[same[k],same[j]]=[same[j],same[k]];f.ord=ORD.flatMap(cat=>cat===c.cat?same:all.filter(x=>x.cat===cat)).map(x=>x.id);}}
+  else if(a==='mvc'){const d=+b.dataset.d,k=S.cards.findIndex(c=>c.id===v),j=k+d;if(j>=0&&j<S.cards.length){const t=S.cards[k];S.cards[k]=S.cards[j];S.cards[j]=t;}}
   else if(a==='pm'){pmId=v;pmErr='';}
   else if(a==='pmx'){pmId=null;pmErr='';}
   else if(a==='imgrm'){const c=S.cards.find(x=>x.id===v),id=b.dataset.k;c.imgs=c.imgs.filter(x=>x!==id);delImg(id);}
@@ -322,6 +374,7 @@ document.addEventListener('change',e=>{
   if(S.locked)return;
   const t=e.target,a=t.dataset.a;
   if(a==='fest'){S.cur=t.value;delArm=false;save();render();}
+  else if(a==='ct'){S.contact[t.dataset.f]=t.value.trim();save();}
   else if(a==='imgadd'){addImgs(t.dataset.v,[...t.files]);t.value='';}
   else if(a==='edit'){const c=S.cards.find(x=>x.id===t.dataset.v);if(c){c[t.dataset.f]=t.value;save();if(t.dataset.f==='cat')render();}}
   else if(a==='rfile'){const fl=t.files&&t.files[0];if(!fl)return;fl.text().then(x=>{try{const d=JSON.parse(x);if(d.app!=='enfuego-menu'||!Array.isArray(d.cards)||!Array.isArray(d.fests))throw 0;pend=d;msg='';}catch(err){pend=null;msg='That file isn’t an Enfuego backup.';}render();});}

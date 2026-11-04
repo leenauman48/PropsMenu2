@@ -42,6 +42,8 @@ button.on{background:var(--c,var(--chalk));color:var(--board)}
 .gp{flex:0 0 86%;scroll-snap-align:center}.gp img{width:100%;max-height:64vh;object-fit:contain;border-radius:12px;display:block}
 .gdots{display:flex;gap:8px}.gdots i{width:8px;height:8px;border-radius:50%;background:var(--chalk);opacity:.3}.gdots i.on{opacity:.9}
 .gcap{max-width:520px;text-align:center;padding:0 16px;font-size:20px}.gcap b{font-family:var(--hand);font-size:30px}.gcap p{color:var(--dim);margin:4px 0 0;font-size:17px}
+.bc{border:3px dashed var(--chalk);border-radius:16px 12px 18px 11px;background:var(--board2);padding:22px 26px;width:min(86vw,420px);display:flex;flex-direction:column;gap:6px;font-size:22px}
+.bc .bn{font-family:var(--hand);font-size:44px;font-weight:700;line-height:1}.bc .bb{font-family:var(--hand);font-size:30px;font-weight:700;color:var(--kit);margin-bottom:6px}.bc a{color:var(--chalk);text-decoration:none}
 .empty{padding:30px 0;color:var(--dim);font-size:20px}
 </style>
 </head>
@@ -49,7 +51,7 @@ button.on{background:var(--c,var(--chalk));color:var(--board)}
 <script>
 try{if((navigator.standalone||matchMedia('(display-mode: standalone)').matches)&&localStorage.getItem('enfuego-menu-v1'))location.replace('admin.html')}catch(e){}
 </script>
-<header><h1>Enfuego Ball Co</h1><p class="info" id="info"></p></header>
+<header style="display:flex;gap:10px;justify-content:space-between;align-items:flex-start"><div><h1>Enfuego Ball Co</h1><p class="info" id="info"></p></div><button id="ccb" class="on" style="--c:var(--chalk)">Order / Contact</button></header>
 <main id="app"><div class="empty">Loading the menu…</div></main>
 <script>
 const TIERS={kit:'Available Today',home:'Ready To Ship',order:'Made To Order'};
@@ -67,6 +69,46 @@ function gal(name,price,desc,urls){
 }
 function closeGal(){const g=document.getElementById('gv');if(g)g.remove()}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGal()});
+function ccDigits(p){return String(p||'').replace(/\D/g,'')}
+function ccPhone(p){const d=ccDigits(p);return d.length===10?`(${d.slice(0,3)}) ${d.slice(3,6)}-${d.slice(6)}`:String(p||'')}
+function ccTel(p){const d=ccDigits(p);return d.length===10?'+1'+d:'+'+d}
+function ccVcf(c){
+  const q=v=>String(v||'').replace(/[\r\n]+/g,' ').replace(/([\\,;])/g,'\\$1'),n=String(c.name||'').trim().split(/\s+/),last=n.length>1?n.pop():'',first=n.join(' ');
+  return ['BEGIN:VCARD','VERSION:3.0','FN:'+q(c.name),'N:'+q(last)+';'+q(first)+';;;','ORG:Enfuego Ball Co','TEL;TYPE=CELL:'+ccTel(c.phone),'EMAIL:'+q(c.email),'NOTE:'+q(c.handle),'END:VCARD'].join('\r\n');
+}
+async function ccJpg(c){
+  try{await Promise.all([document.fonts.load("700 90px Caveat"),document.fonts.load("40px 'Patrick Hand'")]);}catch(e){}
+  const W=1050,H=600,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  g.fillStyle='#23282a';g.fillRect(0,0,W,H);
+  g.strokeStyle='#f1efe6';g.lineWidth=5;g.setLineDash([18,10]);g.strokeRect(24,24,W-48,H-48);g.setLineDash([]);
+  const poly=(pts,col)=>{g.fillStyle=col;g.beginPath();pts.forEach(([x,y],i)=>{const X=60+(x-112)*.95,Y=100+(y-70)*.95;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();g.fill()};
+  poly([[256,70],[350,200],[400,300],[370,400],[300,450],[212,450],[142,400],[112,300],[165,215],[200,260],[215,170]],'#f2c46d');
+  poly([[256,200],[320,290],[335,370],[295,420],[217,420],[177,370],[192,300],[230,310]],'#e58fb0');
+  poly([[256,300],[295,355],[280,410],[232,410],[217,355]],'#f1efe6');
+  g.fillStyle='#f1efe6';g.font="700 100px Caveat,cursive";g.fillText(c.name||'',390,205);
+  g.fillStyle='#f2c46d';g.font="700 56px Caveat,cursive";g.fillText('Enfuego Ball Co',390,275);
+  g.fillStyle='#f1efe6';g.font="40px 'Patrick Hand',sans-serif";
+  g.fillText(ccPhone(c.phone),390,375);g.fillText(c.email||'',390,440);g.fillText(c.handle||'',390,505);
+  return new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+}
+async function ccSend(file){
+  try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:file.name});return;}}catch(e){if(e&&e.name==='AbortError')return;}
+  const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
+}
+function openCC(){
+  closeGal();const c=getContact(),d=document.createElement('div');d.id='gv';d.className='gv';
+  d.innerHTML=`<button class="gx" aria-label="Close">✕</button><div class="bc"><div class="bn">${esc(c.name)}</div><div class="bb">Enfuego Ball Co</div><a href="tel:${esc(ccTel(c.phone))}">${esc(ccPhone(c.phone))}</a><a href="mailto:${esc(c.email)}">${esc(c.email)}</a><span>${esc(c.handle)}</span></div><div class="bar" style="justify-content:center"><button data-cc="jpg" class="on">Save as JPEG</button><button data-cc="vcf">Add to Contacts</button></div>`;
+  document.body.appendChild(d);
+  const jp=ccJpg(c);jp.catch(()=>{});
+  d.addEventListener('click',async e=>{
+    const k=e.target.closest('[data-cc]');
+    if(k){try{if(k.dataset.cc==='jpg')ccSend(new File([await jp],'enfuego-contact.jpg',{type:'image/jpeg'}));else ccSend(new File([ccVcf(c)],'Enfuego-Contact.vcf',{type:'text/vcard'}));}catch(x){}return;}
+    if(e.target===d||e.target.closest('.gx'))closeGal();
+  });
+}
+
+const DEFC={name:'Lee Enfuego',phone:'7609759719',email:'Enfuego'+'ball@gmail.com',handle:'@enfuegoballco'};
+function getContact(){const c=(D&&D.contact)||{};return {name:c.name||DEFC.name,phone:c.phone||DEFC.phone,email:c.email||DEFC.email,handle:c.handle||DEFC.handle}}
 const pids=c=>(c.imgs||[]).filter(x=>/^[a-z0-9]+$/.test(x));
 function render(){
   const el=document.getElementById('app'),inf=document.getElementById('info');
@@ -91,11 +133,12 @@ function render(){
 document.addEventListener('click',e=>{
   const b=e.target.closest('button');
   if(!b){const g=e.target.closest('.card[data-g]');if(g){const c=LIST[+g.dataset.g];if(c)gal(c.name,c.price,c.note,pids(c).map(id=>'img/'+id+'.jpg'));}return;}
-  if(b.closest('#gv'))return;
+  if(b.closest('#gv')||b.id==='ccb')return;
   if(b.dataset.f){fid=b.dataset.f;try{history.replaceState(null,'','#'+fid)}catch(x){}}
   if(b.dataset.c)flt=b.dataset.c;
   render();
 });
+document.getElementById('ccb').addEventListener('click',openCC);
 fid=decodeURIComponent(location.hash.slice(1));
 fetch('festivals.json?'+Date.now(),{cache:'no-store'}).then(r=>r.ok?r.json():{festivals:[]}).then(j=>{D=j;render()}).catch(()=>{D=null;render()});
 </script>
