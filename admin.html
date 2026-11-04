@@ -120,7 +120,9 @@ const d2b=d=>{const [h,x]=d.split(','),m=/data:(.*?);/.exec(h)[1],bin=atob(x),a=
 function shrink(file,max,q){return new Promise((res,rej)=>{const u=URL.createObjectURL(file),im=new Image();im.onload=()=>{const k=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight)),w=Math.round(im.naturalWidth*k),h=Math.round(im.naturalHeight*k),cv=document.createElement('canvas');cv.width=w;cv.height=h;cv.getContext('2d').drawImage(im,0,0,w,h);cv.toBlob(b=>{URL.revokeObjectURL(u);b?res(b):rej()},'image/jpeg',q)};im.onerror=()=>{URL.revokeObjectURL(u);rej()};im.src=u})}
 async function addImgs(cid,files){
   const c=S.cards.find(x=>x.id===cid);if(!c)return;
-  for(const f of files){try{const id=uid(),t=await shrink(f,420,.78),full=await shrink(f,1100,.8);await idbPut({id,t,f:full});IMG[id]={t:URL.createObjectURL(t),f:URL.createObjectURL(full)};c.imgs.push(id);save();render();}catch(e){}}
+  let bad=0;
+  for(const f of files){try{const id=uid(),t=await shrink(f,420,.78),full=await shrink(f,1100,.8);await idbPut({id,t,f:full});IMG[id]={t:URL.createObjectURL(t),f:URL.createObjectURL(full)};c.imgs.push(id);save();render();}catch(e){bad++}}
+  pmErr=bad?bad+(bad>1?' photos':' photo')+' couldn’t be read. If it lives in the cloud, save it to Photos or Files first, then add it again.':'';render();
 }
 function delImg(id){const m=IMG[id];if(m){URL.revokeObjectURL(m.t);URL.revokeObjectURL(m.f);delete IMG[id];}idbDel(id).catch(()=>{});}
 async function loadImgs(){for(const c of S.cards)for(const id of c.imgs){if(IMG[id])continue;try{const r=await idbGet(id);if(r)IMG[id]={t:URL.createObjectURL(r.t),f:URL.createObjectURL(r.f)};}catch(e){}}render();}
@@ -136,7 +138,7 @@ function closeGal(){const g=document.getElementById('gv');if(g)g.remove()}
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeGal()});
 function openG(id){const c=S.cards.find(x=>x.id===id);if(!c)return;const u=c.imgs.map(i=>IMG[i]&&IMG[i].f).filter(Boolean);if(u.length)gal(c.name,c.price,c.note,u);}
 let bkFile=null;
-let pmId=null,pend=null,uk=false,ukMsg='',fails=0,wait=0;
+let pmErr='',pmId=null,pend=null,uk=false,ukMsg='',fails=0,wait=0;
 const hp=async(pin,salt)=>[...new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+':'+pin)))].map(x=>x.toString(16).padStart(2,'0')).join('');
 
 function render(){
@@ -208,7 +210,7 @@ function vCards(){
 }
 function pmBox(){
   const c=S.cards.find(x=>x.id===pmId);if(!c)return '';
-  return `<div class="ov"><div class="box" style="background:var(--board);max-width:560px;width:100%"><b>${esc(c.name)}</b><p class="hint">Tap a photo to make it the cover.</p><div class="pics">${c.imgs.map((id,i)=>`<span class="th ${i?'':'cv'}"><button class="tb" data-a="imgcover" data-v="${c.id}" data-k="${id}" aria-label="Make cover"><img ${IMG[id]?`src="${IMG[id].t}"`:''} alt=""></button><button data-a="imgrm" data-v="${c.id}" data-k="${id}" aria-label="Remove photo">✕</button></span>`).join('')}<label class="addp">+ Add photos<input type="file" accept="image/*" multiple data-a="imgadd" data-v="${c.id}"></label></div><div class="bar" style="margin-top:14px"><button data-a="pmx" class="on">Done</button></div></div></div>`;
+  return `<div class="ov"><div class="box" style="background:var(--board);max-width:560px;width:100%"><b>${esc(c.name)}</b><p class="hint">Tap a photo to make it the cover.</p>${pmErr?`<div class="msg">${esc(pmErr)}</div>`:''}<div class="pics">${c.imgs.map((id,i)=>`<span class="th ${i?'':'cv'}"><button class="tb" data-a="imgcover" data-v="${c.id}" data-k="${id}" aria-label="Make cover"><img ${IMG[id]?`src="${IMG[id].t}"`:''} alt=""></button><button data-a="imgrm" data-v="${c.id}" data-k="${id}" aria-label="Remove photo">✕</button></span>`).join('')}<label class="addp">+ Add photos<input type="file" accept="image/*" multiple data-a="imgadd" data-v="${c.id}"></label></div><div class="bar" style="margin-top:14px"><button data-a="pmx" class="on">Done</button></div></div></div>`;
 }
 function vPub(){
   const g=S.gh,dirty=S.sig!==sig();
@@ -305,8 +307,8 @@ document.addEventListener('click',e=>{
   else if(a==='tog'){if(f.items[v])delete f.items[v];else f.items[v]={tier:'kit',qty:1};}
   else if(a==='tier')f.items[v].tier=b.dataset.k;
   else if(a==='add')S.cards.push({id:uid(),name:'New card',price:'',icon:'🔥',cat:'fire',note:'',imgs:[]});
-  else if(a==='pm')pmId=v;
-  else if(a==='pmx')pmId=null;
+  else if(a==='pm'){pmId=v;pmErr='';}
+  else if(a==='pmx'){pmId=null;pmErr='';}
   else if(a==='imgrm'){const c=S.cards.find(x=>x.id===v),id=b.dataset.k;c.imgs=c.imgs.filter(x=>x!==id);delImg(id);}
   else if(a==='imgcover'){const c=S.cards.find(x=>x.id===v),id=b.dataset.k;c.imgs=[id,...c.imgs.filter(x=>x!==id)];}
   else if(a==='rm'){const dc=S.cards.find(c=>c.id===v);if(dc)dc.imgs.forEach(delImg);S.cards=S.cards.filter(c=>c.id!==v);S.fests.forEach(x=>delete x.items[v]);}
