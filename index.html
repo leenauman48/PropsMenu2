@@ -120,7 +120,7 @@ function rH(x,i){const ids=pids(x),rot=((i*37)%5-2)*.5,pic=ids.length?`<img clas
   return `<div class="card cat-${x.cat}" ${ids.length?`data-g="${i}"`:''} style="--r:${rot}deg">${pic}<div class="nm">${esc(x.name)}</div><div class="rpb">${num(x.np)?`<span class="np">New ${m$(num(x.np))}</span>`:''}<span class="rr">${String(x.rp==null?'':x.rp).trim()!==''?'Repair '+m$(num(x.rp)):'Ask for a quote'}</span></div>${x.note?`<div class="ds">${esc(x.note)}</div>`:''}</div>`}
 function render(){
   const el=document.getElementById('app');
-  document.getElementById('tabs').innerHTML=`<div class="sec"><button data-s="menu" class="big ${sec==='menu'?'on':''}" aria-label="Enfuego Ball"><img class="tl" src="logo-wide.jpg" alt="Enfuego Ball Co"></button><button data-s="rep" class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button data-s="ct" class="${sec==='ct'?'on':''}">Order / Contact</button></div>`;
+  document.getElementById('tabs').innerHTML=`<div class="sec"><button data-s="menu" class="big ${sec==='menu'?'on':''}" aria-label="Enfuego Ball"><img class="tl" src="logo-tab.jpg" alt="Enfuego Ball Co"></button><button data-s="rep" class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button data-s="ct" class="${sec==='ct'?'on':''}">Order / Contact</button></div>`;
   if(D===null){el.innerHTML='<div class="empty">Can’t load the menu right now. Check your connection and try again.</div>';return;}
   const chips=`<div class="chips"><button data-c="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-c="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
   if(sec==='ct'){el.innerHTML=ccBody(getContact());ccJ(getContact());return;}

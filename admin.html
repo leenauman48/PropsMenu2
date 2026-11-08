@@ -263,7 +263,7 @@ function vMenu(){
   return ids.length?h+gridH(ids,f,true):h+`<div class="empty">Nothing here yet. Open Load and pick your cards.</div>`;
 }
 function pfest(){return S.fests.find(x=>x.id===S.pf)||fest()}
-function secBar(fn){return `<div class="sec"><button ${fn('menu')} class="big ${sec==='menu'?'on':''}" aria-label="Enfuego Ball"><img class="tl" src="logo-wide.jpg" alt="Enfuego Ball Co"></button><button ${fn('rep')} class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button ${fn('ct')} class="${sec==='ct'?'on':''}">Order / Contact</button></div>`}
+function secBar(fn){return `<div class="sec"><button ${fn('menu')} class="big ${sec==='menu'?'on':''}" aria-label="Enfuego Ball"><img class="tl" src="logo-tab.jpg" alt="Enfuego Ball Co"></button><button ${fn('rep')} class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button ${fn('ct')} class="${sec==='ct'?'on':''}">Order / Contact</button></div>`}
 function vPres(){
   const f=pfest(),pl=S.fests.filter(x=>x.pres||x.id===f.id);
   let body='';
