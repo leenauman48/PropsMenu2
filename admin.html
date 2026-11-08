@@ -79,6 +79,14 @@ details summary{cursor:pointer;margin-bottom:6px}
 .sec{display:flex;gap:6px;align-items:flex-end}
 .sec button{flex:1;border-radius:16px 16px 0 0;border-bottom:0;padding:8px 6px 6px;font-family:var(--hand);font-size:26px;font-weight:700;line-height:1.1}
 .sec button.big{flex:2;font-size:40px}
+@media (max-width:560px){.sec button{font-size:20px}.sec button.big{font-size:28px}}
+.sec button.big{background:#000;border-color:var(--chalk);padding:3px 6px 0}.sec button.big.on{background:#000;color:inherit;border-color:var(--kit);box-shadow:0 0 0 2px var(--kit)}
+.tl{height:76px;width:auto;display:block;margin:0 auto}
+@media (max-width:560px){.tl{height:56px}}
+.bc{background:#000}.bc .lg{width:min(72%,240px);margin:0 auto 4px;display:block}
+.bcw{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin:6px 0 14px}
+.bc.back{align-items:center;justify-content:center;text-align:center;gap:10px}.bl1{font-family:var(--hand);font-size:36px;font-weight:700;line-height:1.05}.bl2{font-family:var(--hand);font-size:30px;font-weight:700;color:var(--kit);line-height:1.1}
+.gv{overflow-y:auto}
 .np{font-size:16px;color:var(--dim);font-weight:400}
 .rpb{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:2px}
 .rr{font-family:var(--hand);font-size:36px;font-weight:700;color:var(--kit);line-height:1;transform:rotate(-2deg);display:inline-block}
@@ -123,6 +131,7 @@ S.fests.forEach(f=>{f.info=f.info||'';f.pub=!!f.pub;f.pres=!!f.pres});
 S.up=S.up||{};
 S.sales=Array.isArray(S.sales)?S.sales:[];S.repairs=Array.isArray(S.repairs)?S.repairs:[];S.repNote=S.repNote||'';S.pm=S.pm||'Cash';
 S.contact=S.contact||{name:'Lee Enfuego',phone:'7609759719',email:'Enfuego'+'ball@gmail.com',handle:'@enfuegoballco'};
+S.contact.l1=S.contact.l1||'To order please contact';S.contact.l2=S.contact.l2||'We’d love to hear from you';
 S.gh=S.gh||{owner:'leenauman48',repo:'PropsMenu2',branch:'main',token:''};
 if(!S.cur||!S.fests.find(f=>f.id===S.cur))S.cur=S.fests[0].id;
 S.locked=!!(S.locked&&S.pin);
@@ -168,23 +177,20 @@ function ccVcf(c){
 async function ccJpg(c){
   try{await Promise.all([document.fonts.load("700 90px Caveat"),document.fonts.load("40px 'Patrick Hand'")]);}catch(e){}
   const W=1050,H=600,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
-  g.fillStyle='#23282a';g.fillRect(0,0,W,H);
+  const im=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src='logo.png'});
+  g.fillStyle='#000';g.fillRect(0,0,W,H);
   g.strokeStyle='#f1efe6';g.lineWidth=5;g.setLineDash([18,10]);g.strokeRect(24,24,W-48,H-48);g.setLineDash([]);
-  const poly=(pts,col)=>{g.fillStyle=col;g.beginPath();pts.forEach(([x,y],i)=>{const X=60+(x-112)*.95,Y=100+(y-70)*.95;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();g.fill()};
-  poly([[256,70],[350,200],[400,300],[370,400],[300,450],[212,450],[142,400],[112,300],[165,215],[200,260],[215,170]],'#f2c46d');
-  poly([[256,200],[320,290],[335,370],[295,420],[217,420],[177,370],[192,300],[230,310]],'#e58fb0');
-  poly([[256,300],[295,355],[280,410],[232,410],[217,355]],'#f1efe6');
-  g.fillStyle='#f1efe6';g.font="700 100px Caveat,cursive";g.fillText(c.name||'',390,205);
-  g.fillStyle='#f2c46d';g.font="700 56px Caveat,cursive";g.fillText('Enfuego Ball Co',390,275);
-  g.fillStyle='#f1efe6';g.font="40px 'Patrick Hand',sans-serif";
-  g.fillText(ccPhone(c.phone),390,375);g.fillText(c.email||'',390,440);g.fillText(c.handle||'',390,505);
-  return new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+  if(im)g.drawImage(im,48,90,420,420);
+  g.fillStyle='#f1efe6';g.font="700 96px Caveat,cursive";g.fillText(c.name||'',500,215);
+  g.font="40px 'Patrick Hand',sans-serif";
+  g.fillText(ccPhone(c.phone),500,335);g.fillText(c.email||'',500,405);g.fillStyle='#f2c46d';g.fillText(c.handle||'',500,475);
+    return new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
 }
 async function ccSend(file){
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:file.name});return;}}catch(e){if(e&&e.name==='AbortError')return;}
   const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
 }
-function ccBody(c){return `<div class="bc"><div class="bn">${esc(c.name)}</div><div class="bb">Enfuego Ball Co</div><a href="tel:${esc(ccTel(c.phone))}">${esc(ccPhone(c.phone))}</a><a href="mailto:${esc(c.email)}">${esc(c.email)}</a><span>${esc(c.handle)}</span></div><div class="bar" style="justify-content:center"><button data-cc="jpg" class="on">Save as JPEG</button><button data-cc="vcf">Add to Contacts</button></div>`}
+function ccBody(c){return `<div class="bcw"><div class="bc"><img class="lg" src="logo-256.png" alt="Enfuego Ball Co"><div class="bn">${esc(c.name)}</div><a href="tel:${esc(ccTel(c.phone))}">${esc(ccPhone(c.phone))}</a><a href="mailto:${esc(c.email)}">${esc(c.email)}</a><span>${esc(c.handle)}</span></div><div class="bc back"><div class="bl1">${esc(c.l1||'To order please contact')}</div><div class="bl2">${esc(c.l2||'We’d love to hear from you')}</div></div></div><div class="bar" style="justify-content:center"><button data-cc="jpg" class="on">Save as JPEG</button><button data-cc="vcf">Add to Contacts</button></div>`}
 let ccK='',ccP=null;
 function ccJ(c){const k=JSON.stringify(c);if(k!==ccK){ccK=k;ccP=ccJpg(c);ccP.catch(()=>{});}return ccP}
 async function ccAct(kind){const c=getContact();try{if(kind==='jpg')ccSend(new File([await ccJ(c)],'enfuego-contact.jpg',{type:'image/jpeg'}));else ccSend(new File([ccVcf(c)],'Enfuego-Contact.vcf',{type:'text/vcard'}));}catch(x){}}
@@ -258,7 +264,7 @@ function vMenu(){
   return ids.length?h+gridH(ids,f,true):h+`<div class="empty">Nothing here yet. Open Load and pick your cards.</div>`;
 }
 function pfest(){return S.fests.find(x=>x.id===S.pf)||fest()}
-function secBar(fn){return `<div class="sec"><button ${fn('menu')} class="big ${sec==='menu'?'on':''}">Enfuego Ball</button><button ${fn('rep')} class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button ${fn('ct')} class="${sec==='ct'?'on':''}">Contact</button></div>`}
+function secBar(fn){return `<div class="sec"><button ${fn('menu')} class="big ${sec==='menu'?'on':''}" aria-label="Enfuego Ball"><img class="tl" src="logo-256.png" alt="Enfuego Ball Co"></button><button ${fn('rep')} class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button ${fn('ct')} class="${sec==='ct'?'on':''}">Order / Contact</button></div>`}
 function vPres(){
   const f=pfest(),pl=S.fests.filter(x=>x.pres||x.id===f.id);
   let body='';
@@ -271,7 +277,7 @@ function vPresent(){
   return `<p class="hint">Present mode shows customers a read-only board. Customers choose from the festivals you leave in the list below. Nothing can be changed until the PIN is entered, and it stays locked even if the app is closed.</p>${msg?`<div class="msg">${esc(msg)}</div>`:''}
   <div class="box"><b>Festivals customers can pick</b><p class="hint">These appear in the dropdown on the Present screen. At least one stays on.</p>${S.fests.map(x=>`<div class="row"><span class="nm2">${esc(x.name)}</span><button data-a="prtog" data-v="${x.id}" class="${x.pres?'on':''}">${x.pres?'In list':'Hidden'}</button></div>`).join('')}</div>
   <div class="box"><b>${S.pin?'Change PIN':'Set a PIN'}</b><label>New PIN (4 to 8 digits)</label><input id="pin1" type="password" inputmode="numeric" autocomplete="off"><label>Repeat it</label><input id="pin2" type="password" inputmode="numeric" autocomplete="off"><div class="bar" style="margin-top:10px"><button data-a="setpin">Save PIN</button></div></div>
-  <div class="box"><b>Contact card</b><p class="hint">Shown when customers tap Order / Contact. It publishes with your menu.</p>${[['name','Name'],['phone','Phone'],['email','Email'],['handle','Handle']].map(([k,l])=>`<label>${l}</label><input type="text" data-a="ct" data-f="${k}" value="${esc(S.contact[k])}">`).join('')}<div class="bar" style="margin-top:10px"><button data-a="cc">Preview card</button></div></div>
+  <div class="box"><b>Contact card</b><p class="hint">Shown when customers tap Order / Contact. It publishes with your menu.</p>${[['name','Name'],['phone','Phone'],['email','Email'],['handle','Handle'],['l1','Back of card, line 1'],['l2','Back of card, line 2']].map(([k,l])=>`<label>${l}</label><input type="text" data-a="ct" data-f="${k}" value="${esc(S.contact[k])}">`).join('')}<div class="bar" style="margin-top:10px"><button data-a="cc">Preview card</button></div></div>
   <div class="bar"><button data-a="present" class="on" ${S.pin?'':'disabled'}>Start presenting</button>${S.pin?'':'<span class="hint" style="margin:0">Set a PIN first.</span>'}</div>
   <p class="hint">For a tougher lock, turn on Guided Access (Settings, Accessibility, Guided Access), then triple-click the side or top button inside the app. It stops anyone leaving the app.</p>`;
 }

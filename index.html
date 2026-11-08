@@ -47,6 +47,14 @@ button.on{background:var(--c,var(--chalk));color:var(--board)}
 .sec{display:flex;gap:6px;align-items:flex-end}
 .sec button{flex:1;border-radius:16px 16px 0 0;border-bottom:0;padding:8px 6px 6px;font-family:var(--hand);font-size:26px;font-weight:700;line-height:1.1}
 .sec button.big{flex:2;font-size:40px}
+@media (max-width:560px){.sec button{font-size:20px}.sec button.big{font-size:28px}}
+.sec button.big{background:#000;border-color:var(--chalk);padding:3px 6px 0}.sec button.big.on{background:#000;color:inherit;border-color:var(--kit);box-shadow:0 0 0 2px var(--kit)}
+.tl{height:76px;width:auto;display:block;margin:0 auto}
+@media (max-width:560px){.tl{height:56px}}
+.bc{background:#000}.bc .lg{width:min(72%,240px);margin:0 auto 4px;display:block}
+.bcw{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;margin:6px 0 14px}
+.bc.back{align-items:center;justify-content:center;text-align:center;gap:10px}.bl1{font-family:var(--hand);font-size:36px;font-weight:700;line-height:1.05}.bl2{font-family:var(--hand);font-size:30px;font-weight:700;color:var(--kit);line-height:1.1}
+.gv{overflow-y:auto}
 .np{font-size:16px;color:var(--dim);font-weight:400}
 .rpb{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:2px}
 .rr{font-family:var(--hand);font-size:36px;font-weight:700;color:var(--kit);line-height:1;transform:rotate(-2deg);display:inline-block}
@@ -85,29 +93,26 @@ function ccVcf(c){
 async function ccJpg(c){
   try{await Promise.all([document.fonts.load("700 90px Caveat"),document.fonts.load("40px 'Patrick Hand'")]);}catch(e){}
   const W=1050,H=600,cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
-  g.fillStyle='#23282a';g.fillRect(0,0,W,H);
+  const im=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src='logo.png'});
+  g.fillStyle='#000';g.fillRect(0,0,W,H);
   g.strokeStyle='#f1efe6';g.lineWidth=5;g.setLineDash([18,10]);g.strokeRect(24,24,W-48,H-48);g.setLineDash([]);
-  const poly=(pts,col)=>{g.fillStyle=col;g.beginPath();pts.forEach(([x,y],i)=>{const X=60+(x-112)*.95,Y=100+(y-70)*.95;i?g.lineTo(X,Y):g.moveTo(X,Y)});g.closePath();g.fill()};
-  poly([[256,70],[350,200],[400,300],[370,400],[300,450],[212,450],[142,400],[112,300],[165,215],[200,260],[215,170]],'#f2c46d');
-  poly([[256,200],[320,290],[335,370],[295,420],[217,420],[177,370],[192,300],[230,310]],'#e58fb0');
-  poly([[256,300],[295,355],[280,410],[232,410],[217,355]],'#f1efe6');
-  g.fillStyle='#f1efe6';g.font="700 100px Caveat,cursive";g.fillText(c.name||'',390,205);
-  g.fillStyle='#f2c46d';g.font="700 56px Caveat,cursive";g.fillText('Enfuego Ball Co',390,275);
-  g.fillStyle='#f1efe6';g.font="40px 'Patrick Hand',sans-serif";
-  g.fillText(ccPhone(c.phone),390,375);g.fillText(c.email||'',390,440);g.fillText(c.handle||'',390,505);
-  return new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
+  if(im)g.drawImage(im,48,90,420,420);
+  g.fillStyle='#f1efe6';g.font="700 96px Caveat,cursive";g.fillText(c.name||'',500,215);
+  g.font="40px 'Patrick Hand',sans-serif";
+  g.fillText(ccPhone(c.phone),500,335);g.fillText(c.email||'',500,405);g.fillStyle='#f2c46d';g.fillText(c.handle||'',500,475);
+    return new Promise(r=>cv.toBlob(r,'image/jpeg',.92));
 }
 async function ccSend(file){
   try{if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:file.name});return;}}catch(e){if(e&&e.name==='AbortError')return;}
   const u=URL.createObjectURL(file),a=document.createElement('a');a.href=u;a.download=file.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);
 }
-function ccBody(c){return `<div class="bc"><div class="bn">${esc(c.name)}</div><div class="bb">Enfuego Ball Co</div><a href="tel:${esc(ccTel(c.phone))}">${esc(ccPhone(c.phone))}</a><a href="mailto:${esc(c.email)}">${esc(c.email)}</a><span>${esc(c.handle)}</span></div><div class="bar" style="justify-content:center"><button data-cc="jpg" class="on">Save as JPEG</button><button data-cc="vcf">Add to Contacts</button></div>`}
+function ccBody(c){return `<div class="bcw"><div class="bc"><img class="lg" src="logo-256.png" alt="Enfuego Ball Co"><div class="bn">${esc(c.name)}</div><a href="tel:${esc(ccTel(c.phone))}">${esc(ccPhone(c.phone))}</a><a href="mailto:${esc(c.email)}">${esc(c.email)}</a><span>${esc(c.handle)}</span></div><div class="bc back"><div class="bl1">${esc(c.l1||'To order please contact')}</div><div class="bl2">${esc(c.l2||'We’d love to hear from you')}</div></div></div><div class="bar" style="justify-content:center"><button data-cc="jpg" class="on">Save as JPEG</button><button data-cc="vcf">Add to Contacts</button></div>`}
 let ccK='',ccP=null;
 function ccJ(c){const k=JSON.stringify(c);if(k!==ccK){ccK=k;ccP=ccJpg(c);ccP.catch(()=>{});}return ccP}
 async function ccAct(kind){const c=getContact();try{if(kind==='jpg')ccSend(new File([await ccJ(c)],'enfuego-contact.jpg',{type:'image/jpeg'}));else ccSend(new File([ccVcf(c)],'Enfuego-Contact.vcf',{type:'text/vcard'}));}catch(x){}}
 function openCC(){closeGal();const c=getContact(),d=document.createElement('div');d.id='gv';d.className='gv';d.innerHTML=`<button class="gx" aria-label="Close">✕</button>${ccBody(c)}`;document.body.appendChild(d);ccJ(c);d.addEventListener('click',e=>{const k=e.target.closest('[data-cc]');if(k){ccAct(k.dataset.cc);return;}if(e.target===d||e.target.closest('.gx'))closeGal();});}
 const DEFC={name:'Lee Enfuego',phone:'7609759719',email:'Enfuego'+'ball@gmail.com',handle:'@enfuegoballco'};
-function getContact(){const c=(D&&D.contact)||{};return {name:c.name||DEFC.name,phone:c.phone||DEFC.phone,email:c.email||DEFC.email,handle:c.handle||DEFC.handle}}
+function getContact(){const c=(D&&D.contact)||{};return {name:c.name||DEFC.name,phone:c.phone||DEFC.phone,email:c.email||DEFC.email,handle:c.handle||DEFC.handle,l1:c.l1,l2:c.l2}}
 const pids=c=>(c.imgs||[]).filter(x=>/^[a-z0-9]+$/.test(x));
 const num=p=>parseFloat(String(p==null?'':p).replace(/[^0-9.]/g,''))||0;
 const m$=n=>'$'+(Math.round(n*100)/100).toLocaleString('en-US',{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2});
@@ -116,7 +121,7 @@ function rH(x,i){const ids=pids(x),rot=((i*37)%5-2)*.5,pic=ids.length?`<img clas
   return `<div class="card cat-${x.cat}" ${ids.length?`data-g="${i}"`:''} style="--r:${rot}deg">${pic}<div class="nm">${esc(x.name)}</div><div class="rpb">${num(x.np)?`<span class="np">New ${m$(num(x.np))}</span>`:''}<span class="rr">${String(x.rp==null?'':x.rp).trim()!==''?'Repair '+m$(num(x.rp)):'Ask for a quote'}</span></div>${x.note?`<div class="ds">${esc(x.note)}</div>`:''}</div>`}
 function render(){
   const el=document.getElementById('app');
-  document.getElementById('tabs').innerHTML=`<div class="sec"><button data-s="menu" class="big ${sec==='menu'?'on':''}">Enfuego Ball</button><button data-s="rep" class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button data-s="ct" class="${sec==='ct'?'on':''}">Contact</button></div>`;
+  document.getElementById('tabs').innerHTML=`<div class="sec"><button data-s="menu" class="big ${sec==='menu'?'on':''}" aria-label="Enfuego Ball"><img class="tl" src="logo-256.png" alt="Enfuego Ball Co"></button><button data-s="rep" class="${sec==='rep'?'on':''}">Repairs / Estimates</button><button data-s="ct" class="${sec==='ct'?'on':''}">Order / Contact</button></div>`;
   if(D===null){el.innerHTML='<div class="empty">Can’t load the menu right now. Check your connection and try again.</div>';return;}
   const chips=`<div class="chips"><button data-c="all" class="${flt==='all'?'on':''}">All</button>${Object.entries(CATS).map(([k,l])=>`<button data-c="${k}" class="cat-${k} ${flt===k?'on':''}">${l}</button>`).join('')}</div>`;
   if(sec==='ct'){el.innerHTML=ccBody(getContact());ccJ(getContact());return;}
